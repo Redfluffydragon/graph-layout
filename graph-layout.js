@@ -20,6 +20,8 @@ class Graph {
     this.edges = [];
     edges.forEach(edge => this.newEdge(edge));
 
+    this.hoveredNode = null;
+    this.dragging = false;
 
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
@@ -30,6 +32,18 @@ class Graph {
     this.moveThreshold = 0.1;
 
     this.firstRender();
+
+    this.canvas.addEventListener('mousemove', e => {
+      this.mouseMove(e);
+    });
+
+    this.canvas.addEventListener('mousedown', () => {
+      this.mouseDown();
+    })
+
+    this.canvas.addEventListener('mouseup', () => {
+      this.dragging = false;
+    })
   }
 
   newNode({ label = 'test', size = 1, color = 'default' } = {}) {
@@ -69,13 +83,8 @@ class Graph {
       this.ctx.stroke();
     }
 
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.centerNode.x, this.centerNode.y);
-    this.ctx.lineTo(this.nodes[0].x, this.nodes[0].y);
-    this.ctx.stroke();
-
     for (const i of this.nodes) {
-      this.ctx.fillStyle = i.id ? 'red' : 'black';
+      this.ctx.fillStyle = i.id === this.hoveredNode ? 'red' : 'black';
 
       this.ctx.beginPath();
       this.ctx.ellipse(i.x, i.y, 10, 10, 0, 0, 2 * Math.PI);
@@ -107,17 +116,13 @@ class Graph {
 
   calcInternodeForce(node1, node2) {
     const distance = this.dist(node1, node2);
-    const force = this.repelForce * 10000000 / (distance ** 4);
+    const force = this.repelForce * 100000 / (distance ** 3);
     const [x, y] = this.forceDirection(node1, node2, force);
 
-    if (Math.abs(x) < this.moveThreshold && Math.abs(y) < this.moveThreshold) {
-      return;
+    if (this.canApplyForces(x, y, node1)) {
+      node1.x -= x;
+      node1.y -= y;
     }
-
-    // console.log(x, y);
-
-    node1.x -= x ;
-    node1.y -= y ;
   }
 
   calcCenterForce(node) {
@@ -125,12 +130,11 @@ class Graph {
     const force = this.centerForce * 0.0001 * (distance ** 2);
     const [x, y] = this.forceDirection(this.centerNode, node, force);
 
-    if (Math.abs(x) < this.moveThreshold && Math.abs(y) < this.moveThreshold) {
-      return;
+    if (this.canApplyForces(x, y, node)) {
+      node.x -= x;
+      node.y -= y;
     }
 
-    node.x -= x;
-    node.y -= y;
   }
 
   calcEdgeForce(edge) {
@@ -142,14 +146,19 @@ class Graph {
       return;
     }
 
-    const force = edgeLength * 0.0001 * this.linkForce;
+    const force = (edgeLength ** 2) * 0.0001 * this.linkForce;
     const [x, y] = this.forceDirection(node1, node2, force);
 
-    node1.x -= x;
-    node1.y -= y;
+    if (this.canApplyForces(x, y, node1)) {
+      node1.x += x;
+      node1.y += y;
+    }
 
-    node2.x += x;
-    node2.y += y;
+    if (this.canApplyForces(x, y, node2)) {
+      node2.x -= x;
+      node2.y -= y;
+    }
+
   }
 
   dist(node1, node2) {
@@ -175,6 +184,34 @@ class Graph {
     return (abs - this.damping) * sign;
   }
 
+  canApplyForces(x, y, node) {
+    return Math.abs(x) > this.moveThreshold && Math.abs(y) > this.moveThreshold
+      && node.id !== this.hoveredNode;
+  }
+
+  mouseMove(e) {
+    const [x, y] = this.offsetCoords(e.x, e.y);
+
+    if (this.dragging) {
+      this.nodes[this.hoveredNode].x = x;
+      this.nodes[this.hoveredNode].y = y;
+      return;
+    }
+
+    this.hoveredNode = null;
+    for (const node of this.nodes) {
+      if (Math.abs(node.x - x) < 10 && Math.abs(node.y - y) < 10) {
+        this.hoveredNode = node.id;
+      }
+    }
+  }
+
+  mouseDown() {
+    if (this.hoveredNode != null) {
+      this.dragging = true;
+    }
+  }
+
   /**
    * @param {number} min
    * @param {number} max
@@ -182,5 +219,12 @@ class Graph {
    */
   rand(min, max) {
     return Math.random() * (max - min) + min;
+  }
+
+  offsetCoords(x, y) {
+    return [
+      x - this.canvas.offsetLeft,
+      y - this.canvas.offsetTop,
+    ]
   }
 }
