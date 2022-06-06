@@ -31,7 +31,7 @@ class Graph {
     this.repelForce = 10; // force between nodes
     this.linkForce = 1; // force on links
     this.linkDistance = 150; // min link distance?
-    this.damping = 0.01;
+    this.damping = 0.001;
 
     this.moveThreshold = -1;
 
@@ -239,7 +239,7 @@ class Graph {
   #calcDamping(force, damping = this.damping) {
     const sign = Math.sign(force);
     const abs = Math.abs(force);
-    return Math.max(abs - damping * abs, 0) * sign;
+    return Math.max(abs - damping * abs ** 2, 0) * sign;
   }
 
   #vibrationDamping(force) {
