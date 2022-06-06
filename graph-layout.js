@@ -43,7 +43,12 @@ class Graph {
 
     this.canvas.addEventListener('mouseup', () => {
       this.dragging = false;
-    })
+    });
+
+    this.canvas.addEventListener('mouseleave', () => {
+      this.dragging = false;
+      this.hoveredNode = null;
+    });
   }
 
   newNode({ label = 'test', size = 1, color = 'default' } = {}) {
