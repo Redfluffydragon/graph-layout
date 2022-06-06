@@ -165,10 +165,23 @@ class Graph {
     }
   }
 
+  /**
+   * Returns the distance between two nodes
+   * @param {*} node1 
+   * @param {*} node2 
+   * @returns {number}
+   */
   dist(node1, node2) {
     return Math.sqrt((node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2);
   }
 
+  /**
+   * Given two nodes and a force, split the force into x and y components directed between the nodes
+   * @param {*} node1 
+   * @param {*} node2 
+   * @param {number} force 
+   * @returns {[number, number]}
+   */
   #forceDirection(node1, node2, force) {
     const slope = (node1.y - node2.y) / (node1.x - node2.x);
     const angle = Math.tanh(slope);
@@ -225,6 +238,12 @@ class Graph {
     return Math.random() * (max - min) + min;
   }
 
+  /**
+   * Converts coordinates relative to the window to coordinates relative to the canvas
+   * @param {number} x 
+   * @param {number} y 
+   * @returns {[number, number]}
+   */
   #offsetCoords(x, y) {
     return [
       x - this.canvas.offsetLeft,
