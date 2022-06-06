@@ -29,17 +29,18 @@ class Graph {
     this.linkDistance = 250; // max link distance?
     this.damping = 0.0001;
 
-    this.moveThreshold = 0.1;
+    this.moveThreshold = 0.4;
 
-    this.firstRender();
+    this.#setInitialPositions();
+    this.render();
 
     this.canvas.addEventListener('mousemove', e => {
-      this.mouseMove(e);
+      this.#mouseMove(e);
     });
 
     this.canvas.addEventListener('mousedown', () => {
-      this.mouseDown();
-    })
+      this.#mouseDown();
+    });
 
     this.canvas.addEventListener('mouseup', () => {
       this.dragging = false;
@@ -70,7 +71,7 @@ class Graph {
     this.edges.push(edge);
   }
 
-  firstRender() {
+  #setInitialPositions() {
     for (const i of this.nodes) {
       const x = this.rand(this.width * 0.2, this.width * 0.8);
       const y = this.rand(this.height * 0.2, this.height * 0.8);
@@ -78,8 +79,6 @@ class Graph {
       i.x = x;
       i.y = y;
     }
-
-    this.render();
   }
 
   render() {
@@ -100,53 +99,53 @@ class Graph {
       this.ctx.fill();
     }
 
-    this.updateCoords();
+    this.#updatePositions();
 
     requestAnimationFrame(() => {
       this.render();
     });
   }
 
-  updateCoords() {
-    for (const i of this.nodes) {
-      for (const j of this.nodes) {
-        if (j === i) {
+  #updatePositions() {
+    for (const targetNode of this.nodes) {
+      for (const otherNode of this.nodes) {
+        if (otherNode === targetNode) {
           continue;
         }
-        this.calcInternodeForce(i, j);
+        this.#applyInternodeForce(targetNode, otherNode);
       }
-      this.calcCenterForce(i);
+      this.#applyCenterForce(targetNode);
     }
 
-    for (const i of this.edges) {
-      this.calcEdgeForce(i);
+    for (const edge of this.edges) {
+      this.#calcEdgeForce(edge);
     }
   }
 
-  calcInternodeForce(node1, node2) {
+  #applyInternodeForce(node1, node2) {
     const distance = this.dist(node1, node2);
     const force = this.repelForce * 100000 / (distance ** 3);
-    const [x, y] = this.forceDirection(node1, node2, force);
+    const [x, y] = this.#forceDirection(node1, node2, force);
 
-    if (this.canApplyForces(x, y, node1)) {
+    if (this.#canApplyForces(x, y, node1)) {
       node1.x -= x;
       node1.y -= y;
     }
   }
 
-  calcCenterForce(node) {
+  #applyCenterForce(node) {
     const distance = this.dist(this.centerNode, node);
     const force = this.centerForce * 0.0001 * (distance ** 2);
-    const [x, y] = this.forceDirection(this.centerNode, node, force);
+    const [x, y] = this.#forceDirection(this.centerNode, node, force);
 
-    if (this.canApplyForces(x, y, node)) {
+    if (this.#canApplyForces(x, y, node)) {
       node.x -= x;
       node.y -= y;
     }
 
   }
 
-  calcEdgeForce(edge) {
+  #calcEdgeForce(edge) {
     const node1 = this.nodes[edge[0]];
     const node2 = this.nodes[edge[1]];
 
@@ -156,25 +155,24 @@ class Graph {
     }
 
     const force = (edgeLength ** 2) * 0.0001 * this.linkForce;
-    const [x, y] = this.forceDirection(node1, node2, force);
+    const [x, y] = this.#forceDirection(node1, node2, force);
 
-    if (this.canApplyForces(x, y, node1)) {
+    if (this.#canApplyForces(x, y, node1)) {
       node1.x += x;
       node1.y += y;
     }
 
-    if (this.canApplyForces(x, y, node2)) {
+    if (this.#canApplyForces(x, y, node2)) {
       node2.x -= x;
       node2.y -= y;
     }
-
   }
 
   dist(node1, node2) {
     return Math.sqrt((node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2);
   }
 
-  forceDirection(node1, node2, force) {
+  #forceDirection(node1, node2, force) {
     const slope = (node1.y - node2.y) / (node1.x - node2.x);
     const angle = Math.tanh(slope);
 
@@ -184,22 +182,22 @@ class Graph {
     const yForce = Math.sin(angle) * force * reverse;
 
 
-    return [this.applyDamping(xForce), this.applyDamping(yForce)];
+    return [this.#calcDamping(xForce), this.#calcDamping(yForce)];
   }
 
-  applyDamping(force) {
+  #calcDamping(force) {
     const sign = Math.sign(force);
     const abs = Math.abs(force);
-    return (abs - this.damping) * sign;
+    return (abs - this.damping * abs) * sign;
   }
 
-  canApplyForces(x, y, node) {
+  #canApplyForces(x, y, node) {
     return Math.abs(x) > this.moveThreshold && Math.abs(y) > this.moveThreshold
       && node.id !== this.hoveredNode;
   }
 
-  mouseMove(e) {
-    const [x, y] = this.offsetCoords(e.x, e.y);
+  #mouseMove(e) {
+    const [x, y] = this.#offsetCoords(e.x, e.y);
 
     if (this.dragging) {
       this.nodes[this.hoveredNode].x = x;
@@ -215,7 +213,7 @@ class Graph {
     }
   }
 
-  mouseDown() {
+  #mouseDown() {
     if (this.hoveredNode != null) {
       this.dragging = true;
     }
@@ -226,11 +224,11 @@ class Graph {
    * @param {number} max
    * @returns {number}
    */
-  rand(min, max) {
+  static rand(min, max) {
     return Math.random() * (max - min) + min;
   }
 
-  offsetCoords(x, y) {
+  #offsetCoords(x, y) {
     return [
       x - this.canvas.offsetLeft,
       y - this.canvas.offsetTop,
