@@ -73,11 +73,8 @@ class Graph {
 
   #setInitialPositions() {
     for (const i of this.nodes) {
-      const x = this.rand(this.width * 0.2, this.width * 0.8);
-      const y = this.rand(this.height * 0.2, this.height * 0.8);
-
-      i.x = x;
-      i.y = y;
+      i.x = Graph.rand(this.width * 0.2, this.width * 0.8);
+      i.y = Graph.rand(this.height * 0.2, this.height * 0.8);
     }
   }
 
