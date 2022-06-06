@@ -119,6 +119,7 @@ class Graph {
   }
 
   #updatePositions() {
+    // Calculate forces
     for (const targetNode of this.nodes) {
       for (const otherNode of this.nodes) {
         if (otherNode === targetNode) {
@@ -136,11 +137,11 @@ class Graph {
     // Apply forces
     for (const node of this.nodes) {
       if (this.#canApplyForces(node.nextX, node.nextY, node)) {
-        node.x += node.nextX;
-        node.y += node.nextY;
+        node.x += this.#calcDamping(node.nextX, node.smoothX);
+        node.y += this.#calcDamping(node.nextY, node.smoothY);
 
-        node.smoothX = node.nextX < 0.1 ? 0.1 - node.nextX : 0;
-        node.smoothY = node.nextY < 0.1 ? 0.1 - node.nextY : 0;
+        node.smoothX = this.#vibrationDamping(node.nextX);
+        node.smoothX = this.#vibrationDamping(node.nextY);
       }
 
       node.nextX = 0;
@@ -150,16 +151,19 @@ class Graph {
 
   #calcInternodeForce(node1, node2) {
     const distance = this.dist(node1, node2);
-    const force = this.repelForce * 100000 / (distance ** 3);
+    const force = this.repelForce * 500 / (distance ** 2);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX -= x;
     node1.nextY -= y;
+
+    node2.nextX += x;
+    node2.nextY += y;
   }
 
   #calcCenterForce(node) {
     const distance = this.dist(this.centerNode, node);
-    const force = this.centerForce * 0.0001 * (distance ** 2);
+    const force = this.centerForce * 0.00008 * (distance ** 2);
     const [x, y] = this.#forceDirection(this.centerNode, node, force);
 
     node.nextX -= x;
@@ -172,7 +176,7 @@ class Graph {
 
     const edgeLength = this.dist(node1, node2);
 
-    const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce;
+    const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce ** 2;
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX += x;
@@ -215,7 +219,12 @@ class Graph {
   #calcDamping(force, damping = this.damping) {
     const sign = Math.sign(force);
     const abs = Math.abs(force);
-    return (abs - damping * abs) * sign;
+    return Math.max(abs - damping * abs, 0) * sign;
+  }
+
+  #vibrationDamping(force) {
+    const abs = Math.abs(force);
+    return abs < 2 ? 4 - abs ** 2 : 0;
   }
 
   #canApplyForces(x, y, node) {
