@@ -63,6 +63,10 @@ class Graph {
       size,
       color,
       id: this.nextID,
+      nextX: 0,
+      nextY: 0,
+      smoothX: 0,
+      smoothY: 0,
     });
 
     this.nextID++;
@@ -118,37 +122,46 @@ class Graph {
         if (otherNode === targetNode) {
           continue;
         }
-        this.#applyInternodeForce(targetNode, otherNode);
+        this.#calcInternodeForce(targetNode, otherNode);
       }
-      this.#applyCenterForce(targetNode);
+      this.#calcCenterForce(targetNode);
     }
 
     for (const edge of this.edges) {
       this.#calcEdgeForce(edge);
     }
+
+    // Apply forces
+    for (const node of this.nodes) {
+      if (this.#canApplyForces(node.nextX, node.nextY, node)) {
+        node.x += node.nextX;
+        node.y += node.nextY;
+
+        node.smoothX = node.nextX < 0.1 ? 0.1 - node.nextX : 0;
+        node.smoothY = node.nextY < 0.1 ? 0.1 - node.nextY : 0;
+      }
+
+      node.nextX = 0;
+      node.nextY = 0;
+    }
   }
 
-  #applyInternodeForce(node1, node2) {
+  #calcInternodeForce(node1, node2) {
     const distance = this.dist(node1, node2);
     const force = this.repelForce * 100000 / (distance ** 3);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
-    if (this.#canApplyForces(x, y, node1)) {
-      node1.x -= x;
-      node1.y -= y;
-    }
+    node1.nextX -= x;
+    node1.nextY -= y;
   }
 
-  #applyCenterForce(node) {
+  #calcCenterForce(node) {
     const distance = this.dist(this.centerNode, node);
     const force = this.centerForce * 0.0001 * (distance ** 2);
     const [x, y] = this.#forceDirection(this.centerNode, node, force);
 
-    if (this.#canApplyForces(x, y, node)) {
-      node.x -= x;
-      node.y -= y;
-    }
-
+    node.nextX -= x;
+    node.nextY -= y;
   }
 
   #calcEdgeForce(edge) {
@@ -160,15 +173,11 @@ class Graph {
     const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce;
     const [x, y] = this.#forceDirection(node1, node2, force);
 
-    if (this.#canApplyForces(x, y, node1)) {
-      node1.x += x;
-      node1.y += y;
-    }
+    node1.nextX += x;
+    node1.nextY += y;
 
-    if (this.#canApplyForces(x, y, node2)) {
-      node2.x -= x;
-      node2.y -= y;
-    }
+    node2.nextX -= x;
+    node2.nextY -= y;
   }
 
   /**
