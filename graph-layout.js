@@ -176,7 +176,7 @@ class Graph {
 
     const edgeLength = this.dist(node1, node2);
 
-    const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce ** 2;
+    const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce ** 3;
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX += x;
