@@ -11,7 +11,9 @@
   <style>
     body {
       display: flex;
+      flex-direction: column;
       place-content: center;
+      place-items: center;
       height: 100%;
     }
 
@@ -22,5 +24,6 @@
 </head>
 <body>
   <canvas id="demo" width="700" height="700"></canvas>
+  <span>Framerate: <span id="framerate"></span> fps</span>
 </body>
 </html>
