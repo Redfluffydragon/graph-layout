@@ -29,7 +29,8 @@ class Graph {
     this.linkDistance = 250; // max link distance?
     this.damping = 0.0001;
 
-    this.moveThreshold = 0.4;
+    this.lastFrameTime = performance.now();
+    this.frameDiff = 0;
 
     this.#setInitialPositions();
     this.render();
@@ -50,6 +51,10 @@ class Graph {
       this.draggedNode = null;
       this.hoveredNode = null;
     });
+  }
+
+  get framerate() {
+    return Math.ceil(1000 / this.frameDiff);
   }
 
   newNode({ label = 'test', size = 1, color = 'default' } = {}) {
@@ -79,6 +84,10 @@ class Graph {
   }
 
   render() {
+    requestAnimationFrame(() => {
+      this.render();
+    });
+
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     for (const edge of this.edges) {
@@ -98,9 +107,9 @@ class Graph {
 
     this.#updatePositions();
 
-    requestAnimationFrame(() => {
-      this.render();
-    });
+    const now = performance.now();
+    this.frameDiff = now - this.lastFrameTime;
+    this.lastFrameTime = now;
   }
 
   #updatePositions() {
