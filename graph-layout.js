@@ -63,6 +63,10 @@ class Graph {
   }
 
   newEdge(edge) {
+    if (edge.length !== 2 || !Number.isInteger(edge[0]) || !Number.isInteger(edge[1])
+      || edge[0] >= this.nextID || edge[1] >= this.nextID) {
+      throw new Error('Error creating new edge: invalid edge.');
+    }
     this.edges.push(edge);
   }
 
