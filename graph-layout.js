@@ -29,6 +29,8 @@ class Graph {
     this.linkDistance = 150; // min link distance?
     this.damping = 0.0001;
 
+    this.moveThreshold = -1;
+
     this.lastFrameTime = performance.now();
     this.frameDiff = 0;
 
