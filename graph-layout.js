@@ -26,7 +26,7 @@ class Graph {
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
     this.linkForce = 1; // force on links
-    this.linkDistance = 250; // max link distance?
+    this.linkDistance = 150; // min link distance?
     this.damping = 0.0001;
 
     this.lastFrameTime = performance.now();
@@ -156,11 +156,8 @@ class Graph {
     const node2 = this.nodes[edge[1]];
 
     const edgeLength = this.dist(node1, node2);
-    if (edgeLength <= this.linkDistance) {
-      return;
-    }
 
-    const force = (edgeLength ** 2) * 0.0001 * this.linkForce;
+    const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce;
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     if (this.#canApplyForces(x, y, node1)) {
