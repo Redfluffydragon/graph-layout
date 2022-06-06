@@ -266,6 +266,7 @@ class Graph {
       if (Math.abs(node.x - this.#scaleCoord(x, this.width)) < 10
         && Math.abs(node.y - this.#scaleCoord(y, this.height)) < 10) {
         this.hoveredNode = node;
+        break;
       }
     }
   }
