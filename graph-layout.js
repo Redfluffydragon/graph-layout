@@ -269,6 +269,7 @@ class Graph {
         break;
       }
     }
+    this.canvas.style.cursor = this.hoveredNode ? 'pointer' : 'default';
   }
 
   #clear() {
