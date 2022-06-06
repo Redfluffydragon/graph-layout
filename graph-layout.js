@@ -21,7 +21,7 @@ class Graph {
     edges.forEach(edge => this.newEdge(edge));
 
     this.hoveredNode = null;
-    this.dragging = false;
+    this.draggedNode = null;
 
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
@@ -43,11 +43,11 @@ class Graph {
     });
 
     this.canvas.addEventListener('mouseup', () => {
-      this.dragging = false;
+      this.draggedNode = null;
     });
 
     this.canvas.addEventListener('mouseleave', () => {
-      this.dragging = false;
+      this.draggedNode = null;
       this.hoveredNode = null;
     });
   }
@@ -89,7 +89,7 @@ class Graph {
     }
 
     for (const i of this.nodes) {
-      this.ctx.fillStyle = i.id === this.hoveredNode ? 'red' : 'black';
+      this.ctx.fillStyle = i === this.hoveredNode ? 'red' : 'black';
 
       this.ctx.beginPath();
       this.ctx.ellipse(i.x, i.y, 10, 10, 0, 0, 2 * Math.PI);
@@ -203,29 +203,29 @@ class Graph {
 
   #canApplyForces(x, y, node) {
     return Math.abs(x) > this.moveThreshold && Math.abs(y) > this.moveThreshold
-      && node.id !== this.hoveredNode;
+      && node !== this.draggedNode;
   }
 
   #mouseMove(e) {
     const [x, y] = this.#offsetCoords(e.x, e.y);
 
-    if (this.dragging) {
-      this.nodes[this.hoveredNode].x = x;
-      this.nodes[this.hoveredNode].y = y;
+    if (this.draggedNode !== null) {
+      this.draggedNode.x = x;
+      this.draggedNode.y = y;
       return;
     }
 
     this.hoveredNode = null;
     for (const node of this.nodes) {
       if (Math.abs(node.x - x) < 10 && Math.abs(node.y - y) < 10) {
-        this.hoveredNode = node.id;
+        this.hoveredNode = node;
       }
     }
   }
 
   #mouseDown() {
-    if (this.hoveredNode != null) {
-      this.dragging = true;
+    if (this.hoveredNode !== null) {
+      this.draggedNode = this.hoveredNode;
     }
   }
 
