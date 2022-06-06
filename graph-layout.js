@@ -179,7 +179,7 @@ class Graph {
 
   #calcInternodeForce(node1, node2) {
     const distance = this.dist(node1, node2);
-    const force = this.repelForce * 500 / (distance ** 2);
+    const force = Math.min(this.repelForce * 500 / (distance ** 2), 50);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX -= x;
