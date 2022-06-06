@@ -210,10 +210,10 @@ class Graph {
     return [this.#calcDamping(xForce), this.#calcDamping(yForce)];
   }
 
-  #calcDamping(force) {
+  #calcDamping(force, damping = this.damping) {
     const sign = Math.sign(force);
     const abs = Math.abs(force);
-    return (abs - this.damping * abs) * sign;
+    return (abs - damping * abs) * sign;
   }
 
   #canApplyForces(x, y, node) {
