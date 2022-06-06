@@ -89,6 +89,8 @@ class Graph {
       nextY: 0,
       smoothX: 0,
       smoothY: 0,
+      lastX: 0,
+      lastY: 0,
     });
 
     this.nextID++;
@@ -156,13 +158,19 @@ class Graph {
 
     // Apply forces
     for (const node of this.nodes) {
-      if (this.#canApplyForces(node.nextX, node.nextY, node)) {
-        node.x += this.#calcDamping(node.nextX, node.smoothX);
-        node.y += this.#calcDamping(node.nextY, node.smoothY);
+      const x = this.#calcDamping((node.nextX + node.lastX) / 2, node.smoothX);
+      const y = this.#calcDamping((node.nextY + node.lastY) / 2, node.smoothY);
 
-        node.smoothX = this.#vibrationDamping(node.nextX);
-        node.smoothX = this.#vibrationDamping(node.nextY);
+      if (this.#canApplyForces(x, y, node)) {
+        node.x += x;
+        node.y += y;
+
+        node.smoothX = this.#vibrationDamping(x);
+        node.smoothX = this.#vibrationDamping(y);
       }
+
+      node.lastX = x;
+      node.lastY = y;
 
       node.nextX = 0;
       node.nextY = 0;
