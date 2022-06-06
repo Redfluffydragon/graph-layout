@@ -90,14 +90,15 @@ class Graph {
   }
 
   updateCoords() {
-    for (const i in this.nodes) {
-      for (const j in this.nodes) {
+    for (const i of this.nodes) {
+      for (const j of this.nodes) {
         if (j === i) {
           continue;
         }
-        this.calcInternodeForce(this.nodes[i], this.nodes[j]);
+        this.calcInternodeForce(i, j);
       }
-      this.calcCenterForce(this.nodes[i]);
+      this.calcCenterForce(i);
+    }
     }
   }
 
