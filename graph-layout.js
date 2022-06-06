@@ -46,7 +46,7 @@ class Graph {
     });
 
     this.canvas.addEventListener('mousedown', () => {
-      this.#mouseDown();
+      this.draggedNode = this.hoveredNode;
     });
 
     this.canvas.addEventListener('mouseup', () => {
@@ -267,12 +267,6 @@ class Graph {
         && Math.abs(node.y - this.#scaleCoord(y, this.height)) < 10) {
         this.hoveredNode = node;
       }
-    }
-  }
-
-  #mouseDown() {
-    if (this.hoveredNode !== null) {
-      this.draggedNode = this.hoveredNode;
     }
   }
 
