@@ -99,6 +99,9 @@ class Graph {
       }
       this.calcCenterForce(i);
     }
+
+    for (const i of this.edges) {
+      this.calcEdgeForce(i);
     }
   }
 
@@ -128,6 +131,25 @@ class Graph {
 
     node.x -= x;
     node.y -= y;
+  }
+
+  calcEdgeForce(edge) {
+    const node1 = this.nodes[edge[0]];
+    const node2 = this.nodes[edge[1]];
+
+    const edgeLength = this.dist(node1, node2);
+    if (edgeLength <= this.linkDistance) {
+      return;
+    }
+
+    const force = edgeLength * 0.0001 * this.linkForce;
+    const [x, y] = this.forceDirection(node1, node2, force);
+
+    node1.x -= x;
+    node1.y -= y;
+
+    node2.x += x;
+    node2.y += y;
   }
 
   dist(node1, node2) {
