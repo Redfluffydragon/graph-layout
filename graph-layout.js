@@ -3,7 +3,9 @@ class Graph {
     this.id = id;
     this.canvas = document.getElementById(id);
     this.ctx = this.canvas.getContext('2d');
-    this.ctx.fillStyle = 'red';
+
+    this.ctx.mozImageSmoothingEnabled = false;  // firefox
+    this.ctx.imageSmoothingEnabled = false;
 
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
@@ -23,11 +25,13 @@ class Graph {
     this.hoveredNode = null;
     this.draggedNode = null;
 
+    this.scale = 1;
+
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
     this.linkForce = 1; // force on links
     this.linkDistance = 150; // min link distance?
-    this.damping = 0.0001;
+    this.damping = 0.01;
 
     this.moveThreshold = -1;
 
@@ -52,6 +56,22 @@ class Graph {
     this.canvas.addEventListener('mouseleave', () => {
       this.draggedNode = null;
       this.hoveredNode = null;
+    });
+
+    this.canvas.addEventListener('wheel', (e) => {
+      if (!e.ctrlKey) {
+        return;
+      }
+      e.preventDefault();
+
+      this.#clear();
+
+      const factor = e.deltaY / -1250;
+      this.scale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
+
+      const [x, y] = this.#offsetCoords(e.x, e.y)
+
+      this.ctx.setTransform(this.scale, 0, 0, this.scale, this.#centerOn(this.centerNode.x), this.#centerOn(this.centerNode.y));
     });
   }
 
@@ -94,7 +114,7 @@ class Graph {
       this.render();
     });
 
-    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.#clear();
 
     for (const edge of this.edges) {
       this.ctx.beginPath();
@@ -236,14 +256,15 @@ class Graph {
     const [x, y] = this.#offsetCoords(e.x, e.y);
 
     if (this.draggedNode !== null) {
-      this.draggedNode.x = x;
-      this.draggedNode.y = y;
+      this.draggedNode.x = this.#scaleCoord(x, this.width);
+      this.draggedNode.y = this.#scaleCoord(y, this.height);
       return;
     }
 
     this.hoveredNode = null;
     for (const node of this.nodes) {
-      if (Math.abs(node.x - x) < 10 && Math.abs(node.y - y) < 10) {
+      if (Math.abs(node.x - this.#scaleCoord(x, this.width)) < 10
+        && Math.abs(node.y - this.#scaleCoord(y, this.height)) < 10) {
         this.hoveredNode = node;
       }
     }
@@ -253,6 +274,16 @@ class Graph {
     if (this.hoveredNode !== null) {
       this.draggedNode = this.hoveredNode;
     }
+  }
+
+  #clear() {
+    // save transforms
+    this.ctx.save();
+    // reset transforms and clear the whole canvas
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    // restore transforms
+    this.ctx.restore();
   }
 
   /**
@@ -275,5 +306,13 @@ class Graph {
       x - this.canvas.offsetLeft,
       y - this.canvas.offsetTop,
     ]
+  }
+
+  #centerOn(dim) {
+    return - (dim * (this.scale - 1));
+  }
+
+  #scaleCoord(coord, dim) {
+    return coord / this.scale - ((dim * (1 - this.scale)) / this.scale) / 2;
   }
 }
