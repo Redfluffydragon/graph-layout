@@ -74,9 +74,6 @@ class Graph {
     });
 
     this.canvas.addEventListener('wheel', (e) => {
-      if (!e.ctrlKey) {
-        return;
-      }
       e.preventDefault();
 
       this.#clear();
