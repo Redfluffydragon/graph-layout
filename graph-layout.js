@@ -56,7 +56,6 @@ class Graph {
     this.linkDistance = 150; // min link distance?
     this.damping = 0.001;
 
-    this.moveThreshold = -1;
 
     this.lastFrameTime = performance.now();
     this.frameDiff = 0;
@@ -282,9 +281,8 @@ class Graph {
     return abs < 2 ? 4 - abs ** 2 : 0;
   }
 
-  #canApplyForces(x, y, node) {
-    return Math.abs(x) > this.moveThreshold && Math.abs(y) > this.moveThreshold
-      && node !== this.draggedNode;
+  #canApplyForces(node) {
+    return node !== this.draggedNode;
   }
 
   #mouseMove(e) {
