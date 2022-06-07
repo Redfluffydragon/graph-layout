@@ -1,11 +1,16 @@
 class Graph {
-  constructor(id, nodes = [], edges = []) {
+  constructor(id, {
+    nodes = [],
+    edges = [],
+    nodeColor = 'black',
+    hoverColor = 'red',
+    edgeColor = 'gray',
+    textColor = 'black',
+    saveZoom = true,
+  } = {}) {
     this.id = id;
     this.canvas = document.getElementById(id);
     this.ctx = this.canvas.getContext('2d');
-
-    this.ctx.mozImageSmoothingEnabled = false;  // firefox
-    this.ctx.imageSmoothingEnabled = false;
 
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
@@ -14,6 +19,18 @@ class Graph {
       y: this.height / 2,
     }
 
+    this.ctx.textAlign = 'center';
+    this.ctx.font = '1rem Segoe UI';
+
+    this.nodeColor = nodeColor;
+    this.hoverColor = hoverColor;
+    this.edgeColor = edgeColor;
+    this.textColor = textColor;
+
+    this.ctx.mozImageSmoothingEnabled = false;  // firefox
+    this.ctx.imageSmoothingEnabled = false;
+
+    this.scale = 1;
     this.nextID = 0;
 
     this.nodes = [];
@@ -24,8 +41,6 @@ class Graph {
 
     this.hoveredNode = null;
     this.draggedNode = null;
-
-    this.scale = 1;
 
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
@@ -119,6 +134,9 @@ class Graph {
     this.#clear();
 
     for (const edge of this.edges) {
+      this.ctx.strokeStyle = edge[0] === this.hoveredNode?.id || edge[1] === this.hoveredNode?.id
+        ? this.hoverColor
+        : this.edgeColor;
       this.ctx.beginPath();
       this.ctx.moveTo(this.nodes[edge[0]].x, this.nodes[edge[0]].y);
       this.ctx.lineTo(this.nodes[edge[1]].x, this.nodes[edge[1]].y);
@@ -126,7 +144,7 @@ class Graph {
     }
 
     for (const i of this.nodes) {
-      this.ctx.fillStyle = i === this.hoveredNode ? 'red' : 'black';
+      this.ctx.fillStyle = i === this.hoveredNode ? this.hoverColor : this.nodeColor;
 
       this.ctx.beginPath();
       this.ctx.ellipse(i.x, i.y, 10, 10, 0, 0, 2 * Math.PI);
