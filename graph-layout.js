@@ -257,6 +257,8 @@ class Graph {
    * @returns {[number, number]}
    */
   #forceDirection(node1, node2, force) {
+    force = this.#calcDamping(force);
+
     const slope = (node1.y - node2.y) / (node1.x - node2.x);
     const angle = Math.tanh(slope);
 
@@ -266,7 +268,7 @@ class Graph {
     const yForce = Math.sin(angle) * force * reverse;
 
 
-    return [this.#calcDamping(xForce), this.#calcDamping(yForce)];
+    return [xForce, yForce];
   }
 
   #calcDamping(force, damping = this.damping) {
