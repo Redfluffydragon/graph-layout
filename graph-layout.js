@@ -274,7 +274,7 @@ class Graph {
   #calcDamping(force, damping = this.damping) {
     const sign = Math.sign(force);
     const abs = Math.abs(force);
-    return Math.max(abs - damping * abs ** 2, 0) * sign;
+    return Math.max(abs - damping * abs, 0) * sign;
   }
 
   #vibrationDamping(force) {
