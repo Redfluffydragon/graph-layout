@@ -60,7 +60,6 @@ class Graph {
     this.lastFrameTime = performance.now();
     this.frameDiff = 0;
 
-    this.#setInitialPositions();
     this.render();
 
     this.canvas.addEventListener('mousemove', e => {
@@ -108,6 +107,8 @@ class Graph {
       size,
       color,
       id: this.nextID,
+      x: Graph.rand(this.width * 0.2, this.width * 0.8),
+      y: Graph.rand(this.height * 0.2, this.height * 0.8),
       nextX: 0,
       nextY: 0,
       smoothX: 0,
@@ -125,13 +126,6 @@ class Graph {
       throw new Error('Error creating new edge: invalid edge.');
     }
     this.edges.push(edge);
-  }
-
-  #setInitialPositions() {
-    for (const i of this.nodes) {
-      i.x = Graph.rand(this.width * 0.2, this.width * 0.8);
-      i.y = Graph.rand(this.height * 0.2, this.height * 0.8);
-    }
   }
 
   render() {
