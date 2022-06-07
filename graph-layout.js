@@ -167,13 +167,14 @@ class Graph {
   #updatePositions() {
     // Calculate forces
     for (const targetNode of this.nodes) {
+      this.#calcCenterForce(targetNode);
+      
       for (const otherNode of this.nodes) {
         if (otherNode === targetNode) {
           continue;
         }
         this.#calcInternodeForce(targetNode, otherNode);
       }
-      this.#calcCenterForce(targetNode);
     }
 
     for (const edge of this.edges) {
