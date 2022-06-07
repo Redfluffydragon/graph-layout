@@ -110,8 +110,6 @@ class Graph {
       y: Graph.rand(this.height * 0.2, this.height * 0.8),
       nextX: 0,
       nextY: 0,
-      smoothX: 0,
-      smoothY: 0,
       lastX: 0,
       lastY: 0,
     });
@@ -183,15 +181,12 @@ class Graph {
 
     // Apply forces
     for (const node of this.nodes) {
-      const x = this.#calcDamping((node.nextX + node.lastX) / 2, node.smoothX);
-      const y = this.#calcDamping((node.nextY + node.lastY) / 2, node.smoothY);
+      const x = this.#vibrationDamping((node.nextX + node.lastX) / 2);
+      const y = (node.nextY + node.lastY) / 2;
 
-      if (this.#canApplyForces(x, y, node)) {
-        node.x += x;
-        node.y += y;
-
-        node.smoothX = this.#vibrationDamping(x);
-        node.smoothX = this.#vibrationDamping(y);
+      if (this.#canApplyForces(node)) {
+        node.x += Math.round(x * 100) / 100;
+        node.y += Math.round(y * 100) / 100;
       }
 
       node.lastX = x;
@@ -279,7 +274,7 @@ class Graph {
 
   #vibrationDamping(force) {
     const abs = Math.abs(force);
-    return abs < 2 ? 4 - abs ** 2 : 0;
+    return Math.max(abs - (abs < 3 ? 3 - abs : 0), 0) * Math.sign(force);
   }
 
   #canApplyForces(node) {
