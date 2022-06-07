@@ -31,6 +31,14 @@ class Graph {
     this.ctx.imageSmoothingEnabled = false;
 
     this.scale = 1;
+
+    this.saveZoom = saveZoom;
+    if (saveZoom) {
+      this.scale = isNaN(localStorage.getItem('scale')) ? 1 : parseFloat(localStorage.getItem('scale'));
+
+      this.#setTransform();
+    }
+
     this.nextID = 0;
 
     this.nodes = [];
@@ -83,7 +91,11 @@ class Graph {
 
       const [x, y] = this.#offsetCoords(e.x, e.y)
 
-      this.ctx.setTransform(this.scale, 0, 0, this.scale, this.#centerOn(this.centerNode.x), this.#centerOn(this.centerNode.y));
+      this.#setTransform();
+      
+      if (saveZoom) {
+        localStorage.setItem('scale', this.scale);
+      }
     });
   }
 
@@ -303,6 +315,10 @@ class Graph {
     this.ctx.clearRect(0, 0, this.width, this.height);
     // restore transforms
     this.ctx.restore();
+  }
+
+  #setTransform(x = this.centerNode.x, y = this.centerNode.y) {
+    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.#centerOn(x), this.#centerOn(y));
   }
 
   /**
