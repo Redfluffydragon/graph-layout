@@ -149,7 +149,7 @@ class Graph {
       this.ctx.ellipse(i.x, i.y, 10, 10, 0, 0, 2 * Math.PI);
       this.ctx.fill();
 
-      if (this.scale > 0.7 && i.label) {
+      if (this.scale > 0.5 && i.label) {
         this.ctx.fillStyle = this.textColor;
         this.ctx.fillText(i.label, i.x, i.y + 25);
       }
