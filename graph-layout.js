@@ -166,7 +166,7 @@ class Graph {
     // Calculate forces
     for (const targetNode of this.nodes) {
       this.#calcCenterForce(targetNode);
-      
+
       for (const otherNode of this.nodes) {
         if (otherNode === targetNode) {
           continue;
