@@ -36,7 +36,7 @@ class Graph {
     if (saveZoom) {
       this.scale = isNaN(localStorage.getItem('scale')) ? 1 : parseFloat(localStorage.getItem('scale'));
 
-      this.#setTransform();
+      this.#setScale();
     }
 
     this.nextID = 0;
@@ -81,15 +81,15 @@ class Graph {
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
 
-      this.#clear();
+      this.#clearCanvas();
 
       const factor = e.deltaY / -1250;
       this.scale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
 
       const [x, y] = this.#offsetCoords(e.x, e.y)
 
-      this.#setTransform();
-      
+      this.#setScale();
+
       if (saveZoom) {
         localStorage.setItem('scale', this.scale);
       }
@@ -130,7 +130,7 @@ class Graph {
       this.render();
     });
 
-    this.#clear();
+    this.#clearCanvas();
 
     for (const edge of this.edges) {
       this.ctx.strokeStyle = edge[0] === this.hoveredNode?.id || edge[1] === this.hoveredNode?.id
@@ -301,7 +301,7 @@ class Graph {
     this.canvas.style.cursor = this.hoveredNode ? 'pointer' : 'default';
   }
 
-  #clear() {
+  #clearCanvas() {
     // save transforms
     this.ctx.save();
     // reset transforms and clear the whole canvas
@@ -311,7 +311,7 @@ class Graph {
     this.ctx.restore();
   }
 
-  #setTransform(x = this.centerNode.x, y = this.centerNode.y) {
+  #setScale(x = this.centerNode.x, y = this.centerNode.y) {
     this.ctx.setTransform(this.scale, 0, 0, this.scale, this.#centerOn(x), this.#centerOn(y));
   }
 
