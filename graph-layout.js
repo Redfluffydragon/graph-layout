@@ -181,7 +181,7 @@ class Graph {
 
     // Apply forces
     for (const node of this.nodes) {
-      const x = this.#vibrationDamping((node.nextX + node.lastX) / 2);
+      const x = (node.nextX + node.lastX) / 2;
       const y = (node.nextY + node.lastY) / 2;
 
       if (this.#canApplyForces(node)) {
@@ -224,7 +224,7 @@ class Graph {
 
     const edgeLength = this.dist(node1, node2);
 
-    const force = (edgeLength - this.linkDistance) * 0.1 * this.linkForce ** 3;
+    const force = Math.min(this.linkDistance - edgeLength, 0) * 0.1 * this.linkForce ** 3;
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX += x;
@@ -254,14 +254,12 @@ class Graph {
   #forceDirection(node1, node2, force) {
     force = this.#calcDamping(force);
 
-    const slope = (node1.y - node2.y) / (node1.x - node2.x);
-    const angle = Math.tanh(slope);
+    const rise = node2.y - node1.y;
+    const run = node2.x - node1.x;
 
-    const reverse = node1.x > node2.x ? -1 : 1;
-
-    const xForce = Math.cos(angle) * force * reverse;
-    const yForce = Math.sin(angle) * force * reverse;
-
+    // Use Pythagorean theorem to calculate the x and y forces
+    const xForce = Math.sqrt((force ** 2) / (1 + (rise / run) ** 2)) * Math.sign(run);
+    const yForce = Math.sqrt((force ** 2) / (1 + (run / rise) ** 2)) * Math.sign(rise);
 
     return [xForce, yForce];
   }
@@ -270,11 +268,6 @@ class Graph {
     const sign = Math.sign(force);
     const abs = Math.abs(force);
     return Math.max(abs - damping * abs, 0) * sign;
-  }
-
-  #vibrationDamping(force) {
-    const abs = Math.abs(force);
-    return Math.max(abs - (abs < 3 ? 3 - abs : 0), 0) * Math.sign(force);
   }
 
   #canApplyForces(node) {
