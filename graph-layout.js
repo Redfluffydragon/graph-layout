@@ -103,7 +103,7 @@ class Graph {
     return Math.ceil(1000 / this.frameDiff);
   }
 
-  newNode({ label = 'test', size = 1, color = 'default' } = {}) {
+  newNode({ label = 'test', size = 10, color = 'default' } = {}) {
     this.nodes.push({
       label,
       size,
@@ -145,16 +145,16 @@ class Graph {
       this.ctx.stroke();
     }
 
-    for (const i of this.nodes) {
-      this.ctx.fillStyle = i === this.hoveredNode ? this.hoverColor : this.nodeColor;
+    for (const node of this.nodes) {
+      this.ctx.fillStyle = node === this.hoveredNode ? this.hoverColor : this.nodeColor;
 
       this.ctx.beginPath();
-      this.ctx.ellipse(i.x, i.y, 10, 10, 0, 0, 2 * Math.PI);
+      this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
       this.ctx.fill();
 
-      if (this.scale > 0.5 && i.label) {
+      if (this.scale > 0.5 && node.label) {
         this.ctx.fillStyle = this.textColor;
-        this.ctx.fillText(i.label, i.x, i.y + 25);
+        this.ctx.fillText(node.label, node.x, node.y + 25);
       }
     }
 
