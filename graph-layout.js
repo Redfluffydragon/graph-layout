@@ -103,7 +103,13 @@ class Graph {
       const oldScaleY = this.#scaledPart(this.height / 2);
 
       const factor = e.deltaY / -1250;
-      this.scale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
+      const newScale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
+
+      if (newScale === this.scale) {
+        return;
+      }
+
+      this.scale = newScale;
 
       const [x, y] = this.#canvasCoords(e.x, e.y);
 
