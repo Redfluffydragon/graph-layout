@@ -209,7 +209,7 @@ class Graph {
 
   #calcInternodeForce(node1, node2) {
     const distance = this.dist(node1, node2);
-    const force = Math.min(this.repelForce * 500 / (distance ** 2), 50);
+    const force = Math.min(this.repelForce * 2000 / (distance ** 2), 50);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX -= x;
@@ -221,7 +221,7 @@ class Graph {
 
   #calcCenterForce(node) {
     const distance = this.dist(this.centerNode, node);
-    const force = this.centerForce * 0.00005 * (distance ** 2);
+    const force = this.centerForce * 0.00003 * (distance ** 2);
     const [x, y] = this.#forceDirection(this.centerNode, node, force);
 
     node.nextX -= x;
