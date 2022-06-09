@@ -59,6 +59,9 @@ class Graph {
     this.lastFrameTime = performance.now();
     this.frameDiff = 0;
 
+    this.cursorDot = false;
+    this.mousePos = [0, 0];
+
     this.render();
 
     this.canvas.addEventListener('mousemove', e => {
@@ -153,6 +156,13 @@ class Graph {
         this.ctx.fillStyle = this.textColor;
         this.ctx.fillText(i.label, i.x, i.y + 25);
       }
+    }
+
+    if (this.cursorDot) {
+      this.ctx.fillStyle = 'purple';
+      this.ctx.beginPath();
+      this.ctx.ellipse(this.mousePos[0], this.mousePos[1], 10, 10, 0, 0, 2 * Math.PI);
+      this.ctx.fill();
     }
 
     this.#updatePositions();
@@ -275,7 +285,7 @@ class Graph {
   }
 
   #mouseMove(e) {
-    const [x, y] = this.#offsetCoords(e.x, e.y);
+    this.mousePos = [x, y];
 
     if (this.draggedNode !== null) {
       this.draggedNode.x = this.#scaleCoord(x, this.width);
