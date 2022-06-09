@@ -31,13 +31,19 @@ class Graph {
     this.ctx.imageSmoothingEnabled = false;
 
     this.scale = 1;
-
     this.saveZoom = saveZoom;
     if (saveZoom) {
       this.scale = isNaN(localStorage.getItem('scale')) ? 1 : parseFloat(localStorage.getItem('scale'));
-
-      this.#setScale();
     }
+
+    this.viewCenterX = this.#scaledPart(this.width / 2);
+    this.viewCenterY = this.#scaledPart(this.height / 2);
+    this.startViewCenterX = 0;
+    this.startViewCenterY = 0;
+    this.startDragX = 0;
+    this.startDragY = 0;
+
+    this.#setTransform();
 
     this.nextID = 0;
 
@@ -49,6 +55,7 @@ class Graph {
 
     this.hoveredNode = null;
     this.draggedNode = null;
+    this.dragging = false;
 
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
@@ -68,17 +75,23 @@ class Graph {
       this.#mouseMove(e);
     });
 
-    this.canvas.addEventListener('mousedown', () => {
+    this.canvas.addEventListener('mousedown', (e) => {
       this.draggedNode = this.hoveredNode;
+      this.dragging = true;
+      [this.startDragX, this.startDragY] = [e.x, e.y];
+      this.startViewCenterX = this.viewCenterX;
+      this.startViewCenterY = this.viewCenterY;
     });
 
     this.canvas.addEventListener('mouseup', () => {
       this.draggedNode = null;
+      this.dragging = false;
     });
 
     this.canvas.addEventListener('mouseleave', () => {
       this.draggedNode = null;
       this.hoveredNode = null;
+      this.dragging = false;
     });
 
     this.canvas.addEventListener('wheel', (e) => {
@@ -89,9 +102,12 @@ class Graph {
       const factor = e.deltaY / -1250;
       this.scale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
 
-      const [x, y] = this.#offsetCoords(e.x, e.y)
+      const [x, y] = this.#canvasCoords(e.x, e.y);
 
-      this.#setScale();
+      this.viewCenterX = this.#scaledPart(this.width / 2);
+      this.viewCenterY = this.#scaledPart(this.height / 2);
+
+      this.#setTransform();
 
       if (saveZoom) {
         localStorage.setItem('scale', this.scale);
@@ -191,6 +207,7 @@ class Graph {
 
     // Apply forces
     for (const node of this.nodes) {
+      // use the average of the last one and the current one for a little more stability/smoothness/damping
       const x = (node.nextX + node.lastX) / 2;
       const y = (node.nextY + node.lastY) / 2;
 
@@ -285,18 +302,26 @@ class Graph {
   }
 
   #mouseMove(e) {
+    const [x, y] = this.#canvasCoords(e.x, e.y);
     this.mousePos = [x, y];
 
     if (this.draggedNode !== null) {
-      this.draggedNode.x = this.#scaleCoord(x, this.width);
-      this.draggedNode.y = this.#scaleCoord(y, this.height);
+      this.draggedNode.x = x;
+      this.draggedNode.y = y;
+      return;
+    }
+    else if (this.dragging === true) {
+      this.viewCenterX = this.startViewCenterX + (e.x - this.startDragX);
+      this.viewCenterY = this.startViewCenterY + (e.y - this.startDragY);
+
+      this.#setTransform();
       return;
     }
 
     this.hoveredNode = null;
     for (const node of this.nodes) {
-      if (Math.abs(node.x - this.#scaleCoord(x, this.width)) < 10
-        && Math.abs(node.y - this.#scaleCoord(y, this.height)) < 10) {
+      if (Math.abs(node.x - x) < 10
+        && Math.abs(node.y - y) < 10) {
         this.hoveredNode = node;
         break;
       }
@@ -314,8 +339,8 @@ class Graph {
     this.ctx.restore();
   }
 
-  #setScale(x = this.centerNode.x, y = this.centerNode.y) {
-    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.#centerOn(x), this.#centerOn(y));
+  #setTransform() {
+    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.viewCenterX, this.viewCenterY);
   }
 
   /**
@@ -333,18 +358,27 @@ class Graph {
    * @param {number} y 
    * @returns {[number, number]}
    */
-  #offsetCoords(x, y) {
+  #canvasCoords(x, y) {
     return [
-      x - this.canvas.offsetLeft,
-      y - this.canvas.offsetTop,
-    ]
+      this.#scaleCoord(x - this.canvas.offsetLeft, this.viewCenterX),
+      this.#scaleCoord(y - this.canvas.offsetTop, this.viewCenterY),
+    ];
   }
 
-  #centerOn(dim) {
-    return - (dim * (this.scale - 1));
+  /**
+   * @param {number} dim 
+   * @returns {number}
+   */
+  #scaledPart(dim) {
+    return (dim * (1 - this.scale));
   }
 
-  #scaleCoord(coord, dim) {
-    return coord / this.scale - ((dim * (1 - this.scale)) / this.scale) / 2;
+  /**
+   * @param {number} coord The coordinate
+   * @param {number} center The center of the view?
+   * @returns {number}
+   */
+  #scaleCoord(coord, center) {
+    return (coord - center) / this.scale;
   }
 }
