@@ -99,13 +99,16 @@ class Graph {
 
       this.#clearCanvas();
 
+      const oldScaleX = this.#scaledPart(this.width / 2);
+      const oldScaleY = this.#scaledPart(this.height / 2);
+
       const factor = e.deltaY / -1250;
       this.scale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
 
       const [x, y] = this.#canvasCoords(e.x, e.y);
 
-      this.viewCenterX = this.#scaledPart(this.width / 2);
-      this.viewCenterY = this.#scaledPart(this.height / 2);
+      this.viewCenterX += this.#scaledPart(this.width / 2) - oldScaleX;
+      this.viewCenterY += this.#scaledPart(this.height / 2) - oldScaleY;
 
       this.#setTransform();
 
