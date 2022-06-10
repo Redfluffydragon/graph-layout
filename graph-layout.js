@@ -420,12 +420,4 @@ class Graph {
   #scaleCoord(coord, center) {
     return (coord - center) / this.scale;
   }
-
-  /**
-   * @param {'x'|'y'} type 
-   * @returns {number}
-   */
-  #actualCenter(type) {
-    return type === 'x' ? (this.centerNode.x - this.transform.e) / this.scale : (this.centerNode.y - this.transform.f) / this.scale;
-  }
 }
