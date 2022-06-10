@@ -32,7 +32,6 @@ class Graph {
     this.edgeColor = edgeColor;
     this.textColor = textColor;
 
-    this.ctx.mozImageSmoothingEnabled = false;  // firefox
     this.ctx.imageSmoothingEnabled = false;
 
     this.scale = 1;
