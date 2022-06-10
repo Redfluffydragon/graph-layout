@@ -12,7 +12,7 @@ class Graph {
   } = {}) {
     this.canvas = typeof canvas === 'string'
       ? document.getElementById(canvas)
-      : this.canvas = canvas;
+      : canvas;
 
     this.ctx = this.canvas.getContext('2d');
 
