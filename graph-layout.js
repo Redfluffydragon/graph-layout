@@ -78,12 +78,16 @@ class Graph {
     this.canvas.addEventListener('mousedown', (e) => {
       this.draggedNode = this.hoveredNode;
       this.dragging = true;
+      if (!this.draggedNode) {
+        this.canvas.style.cursor = 'grabbing';
+      }
       [this.startDragX, this.startDragY] = [e.x, e.y];
-      this.startViewCenterX = this.viewCenterX;
-      this.startViewCenterY = this.viewCenterY;
     });
 
     this.canvas.addEventListener('mouseup', () => {
+      if (!this.draggedNode) {
+        this.canvas.style.cursor = 'default';
+      }
       this.draggedNode = null;
       this.dragging = false;
     });
