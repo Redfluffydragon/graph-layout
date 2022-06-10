@@ -39,7 +39,7 @@ class Graph {
 
     this.scale = 1;
     this.saveZoom = saveZoom;
-    if (saveZoom) {
+    if (this.saveZoom) {
       this.scale = isNaN(localStorage.getItem('scale'))
         ? 1
         : parseFloat(localStorage.getItem('scale'));
@@ -374,7 +374,7 @@ class Graph {
 
     this.scale = newScale;
 
-    if (saveZoom) {
+    if (this.saveZoom) {
       localStorage.setItem('scale', this.scale);
     }
   }
