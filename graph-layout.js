@@ -76,54 +76,19 @@ class Graph {
     });
 
     this.canvas.addEventListener('mousedown', (e) => {
-      this.draggedNode = this.hoveredNode;
-      this.dragging = true;
-      if (!this.draggedNode) {
-        this.canvas.style.cursor = 'grabbing';
-      }
-      [this.startDragX, this.startDragY] = [e.x, e.y];
+      this.#mouseDown(e);
     });
 
     this.canvas.addEventListener('mouseup', () => {
-      if (!this.draggedNode) {
-        this.canvas.style.cursor = 'default';
-      }
-      this.draggedNode = null;
-      this.dragging = false;
+      this.#mouseUp();
     });
 
     this.canvas.addEventListener('mouseleave', () => {
-      this.draggedNode = null;
-      this.hoveredNode = null;
-      this.dragging = false;
+      this.#mouseLeave();
     });
 
     this.canvas.addEventListener('wheel', (e) => {
-      e.preventDefault();
-
-      // clear before zooming because otherwise if you're zooming out stuff gets left outside the canvas
-      this.#clearCanvas();
-
-      const factor = e.deltaY / -1250;
-      const newScale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
-
-      if (newScale === this.scale) {
-        return;
-      }
-
-      const [x, y] = this.#canvasCoords(e.x, e.y);
-
-      this.ctx.translate(x, y);
-
-      this.ctx.scale(newScale / this.scale, newScale / this.scale);
-
-      this.ctx.translate(-x, -y);
-
-      this.scale = newScale;
-
-      if (saveZoom) {
-        localStorage.setItem('scale', this.scale);
-      }
+      this.#zoom(e);
     });
   }
 
@@ -348,6 +313,57 @@ class Graph {
       }
     }
     this.canvas.style.cursor = this.hoveredNode ? 'pointer' : 'default';
+  }
+
+  #mouseDown(e) {
+    this.draggedNode = this.hoveredNode;
+    this.dragging = true;
+    if (!this.draggedNode) {
+      this.canvas.style.cursor = 'grabbing';
+    }
+    [this.startDragX, this.startDragY] = [e.x, e.y];
+  }
+
+  #mouseUp() {
+    if (!this.draggedNode) {
+      this.canvas.style.cursor = 'default';
+    }
+    this.draggedNode = null;
+    this.dragging = false;
+  }
+
+  #mouseLeave() {
+    this.draggedNode = null;
+    this.hoveredNode = null;
+    this.dragging = false;
+  }
+
+  #zoom(e) {
+    e.preventDefault();
+
+    // clear before zooming because otherwise if you're zooming out stuff gets left outside the canvas
+    this.#clearCanvas();
+
+    const factor = e.deltaY / -1250;
+    const newScale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
+
+    if (newScale === this.scale) {
+      return;
+    }
+
+    const [x, y] = this.#canvasCoords(e.x, e.y);
+
+    this.ctx.translate(x, y);
+
+    this.ctx.scale(newScale / this.scale, newScale / this.scale);
+
+    this.ctx.translate(-x, -y);
+
+    this.scale = newScale;
+
+    if (saveZoom) {
+      localStorage.setItem('scale', this.scale);
+    }
   }
 
   #clearCanvas() {
