@@ -36,14 +36,10 @@ class Graph {
       this.scale = isNaN(localStorage.getItem('scale')) ? 1 : parseFloat(localStorage.getItem('scale'));
     }
 
-    this.viewCenterX = this.#scaledPart(this.width / 2);
-    this.viewCenterY = this.#scaledPart(this.height / 2);
-    this.startViewCenterX = 0;
-    this.startViewCenterY = 0;
     this.startDragX = 0;
     this.startDragY = 0;
 
-    this.#setTransform();
+    this.#setInitialTransform();
 
     this.nextID = 0;
 
@@ -101,10 +97,8 @@ class Graph {
     this.canvas.addEventListener('wheel', (e) => {
       e.preventDefault();
 
+      // clear before zooming because otherwise if you're zooming out stuff gets left outside the canvas
       this.#clearCanvas();
-
-      const oldScaleX = this.#scaledPart(this.width / 2);
-      const oldScaleY = this.#scaledPart(this.height / 2);
 
       const factor = e.deltaY / -1250;
       const newScale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
@@ -113,14 +107,15 @@ class Graph {
         return;
       }
 
-      this.scale = newScale;
-
       const [x, y] = this.#canvasCoords(e.x, e.y);
 
-      this.viewCenterX += this.#scaledPart(this.width / 2) - oldScaleX;
-      this.viewCenterY += this.#scaledPart(this.height / 2) - oldScaleY;
+      this.ctx.translate(x, y);
 
-      this.#setTransform();
+      this.ctx.scale(newScale / this.scale, newScale / this.scale);
+
+      this.ctx.translate(-x, -y);
+
+      this.scale = newScale;
 
       if (saveZoom) {
         localStorage.setItem('scale', this.scale);
@@ -130,6 +125,10 @@ class Graph {
 
   get framerate() {
     return Math.ceil(1000 / this.frameDiff);
+  }
+
+  get transform() {
+    return this.ctx.getTransform();
   }
 
   newNode({ label = 'test', size = 10, color = 'default' } = {}) {
@@ -324,10 +323,10 @@ class Graph {
       return;
     }
     else if (this.dragging === true) {
-      this.viewCenterX = this.startViewCenterX + (e.x - this.startDragX);
-      this.viewCenterY = this.startViewCenterY + (e.y - this.startDragY);
+      this.ctx.translate((e.x - this.startDragX) / this.scale, (e.y - this.startDragY) / this.scale);
+      this.startDragX = e.x;
+      this.startDragY = e.y;
 
-      this.#setTransform();
       return;
     }
 
@@ -352,8 +351,8 @@ class Graph {
     this.ctx.restore();
   }
 
-  #setTransform() {
-    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.viewCenterX, this.viewCenterY);
+  #setInitialTransform() {
+    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.#scaledPart(this.width / 2), this.#scaledPart(this.height / 2));
   }
 
   /**
@@ -373,8 +372,8 @@ class Graph {
    */
   #canvasCoords(x, y) {
     return [
-      this.#scaleCoord(x - this.canvas.offsetLeft, this.viewCenterX),
-      this.#scaleCoord(y - this.canvas.offsetTop, this.viewCenterY),
+      this.#scaleCoord(x - this.canvas.offsetLeft, this.transform.e),
+      this.#scaleCoord(y - this.canvas.offsetTop, this.transform.f),
     ];
   }
 
@@ -393,5 +392,13 @@ class Graph {
    */
   #scaleCoord(coord, center) {
     return (coord - center) / this.scale;
+  }
+
+  /**
+   * @param {'x'|'y'} type 
+   * @returns {number}
+   */
+  #actualCenter(type) {
+    return type === 'x' ? (this.centerNode.x - this.transform.e) / this.scale : (this.centerNode.y - this.transform.f) / this.scale;
   }
 }
