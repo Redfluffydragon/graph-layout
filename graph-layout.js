@@ -100,7 +100,7 @@ class Graph {
     return this.ctx.getTransform();
   }
 
-  newNode({ label = 'test', size = 10, color = 'default' } = {}) {
+  newNode({ label = 'test', size = 10, color = '' } = {}) {
     this.nodes.push({
       label,
       size,
@@ -144,7 +144,9 @@ class Graph {
     }
 
     for (const node of this.nodes) {
-      this.ctx.fillStyle = node === this.hoveredNode ? this.hoverColor : this.nodeColor;
+      this.ctx.fillStyle = node === this.hoveredNode
+        ? this.hoverColor
+        : (node.color || this.nodeColor);
 
       this.ctx.beginPath();
       this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
