@@ -6,6 +6,7 @@ class Graph {
     hoverColor = '#ba0f0f',
     edgeColor = 'darkgray',
     textColor = 'gray',
+    font = '1rem Segoe UI',
     saveZoom = true,
   } = {}) {
     this.canvas = typeof canvas === 'string'
@@ -22,7 +23,7 @@ class Graph {
     }
 
     this.ctx.textAlign = 'center';
-    this.ctx.font = '1rem Segoe UI';
+    this.ctx.font = font;
 
     this.nodeColor = nodeColor;
     this.hoverColor = hoverColor;
