@@ -6,6 +6,7 @@ class Graph {
     hoverColor = '#ba0f0f',
     edgeColor = 'darkgray',
     textColor = 'gray',
+    background = '',
     font = '1rem Segoe UI',
     minTextScale = 0.5,
     saveZoom = true,
@@ -31,6 +32,8 @@ class Graph {
     this.hoverColor = hoverColor;
     this.edgeColor = edgeColor;
     this.textColor = textColor;
+    this.background = background;
+    this.canvas.style.background = background;
 
     this.ctx.imageSmoothingEnabled = false;
 
