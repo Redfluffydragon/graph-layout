@@ -37,7 +37,9 @@ class Graph {
     this.scale = 1;
     this.saveZoom = saveZoom;
     if (saveZoom) {
-      this.scale = isNaN(localStorage.getItem('scale')) ? 1 : parseFloat(localStorage.getItem('scale'));
+      this.scale = isNaN(localStorage.getItem('scale'))
+        ? 1
+        : parseFloat(localStorage.getItem('scale'));
     }
 
     this.startDragX = 0;
@@ -118,8 +120,10 @@ class Graph {
   }
 
   newEdge(edge) {
-    if (edge.length !== 2 || !Number.isInteger(edge[0]) || !Number.isInteger(edge[1])
-      || edge[0] >= this.nextID || edge[1] >= this.nextID) {
+    if (edge.length !== 2 || !Number.isInteger(edge[0])
+      || !Number.isInteger(edge[1]) || edge[0] >= this.nextID
+      || edge[1] >= this.nextID
+    ) {
       throw new Error('Error creating new edge: invalid edge.');
     }
     this.edges.push(edge);
