@@ -15,8 +15,6 @@ class Graph {
       ? document.getElementById(canvas)
       : canvas;
 
-    this.ctx = this.canvas.getContext('2d');
-
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
     this.centerNode = {
@@ -24,9 +22,9 @@ class Graph {
       y: this.height / 2,
     }
 
+    this.ctx = this.canvas.getContext('2d');
     this.ctx.textAlign = 'center';
     this.ctx.font = font;
-    this.minTextScale = minTextScale;
 
     this.nodeColor = nodeColor;
     this.hoverColor = hoverColor;
@@ -34,6 +32,7 @@ class Graph {
     this.textColor = textColor;
     this.background = background;
     this.canvas.style.background = background;
+    this.minTextScale = minTextScale;
 
     this.ctx.imageSmoothingEnabled = false;
 
