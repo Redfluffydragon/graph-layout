@@ -182,10 +182,9 @@ class Graph {
       this.#calcCenterForce(targetNode);
 
       for (const otherNode of this.nodes) {
-        if (otherNode === targetNode) {
-          continue;
+        if (otherNode !== targetNode) {
+          this.#calcInternodeForce(targetNode, otherNode);
         }
-        this.#calcInternodeForce(targetNode, otherNode);
       }
     }
 
@@ -195,18 +194,23 @@ class Graph {
 
     // Apply forces
     for (const node of this.nodes) {
-      // use the average of the last one and the current one for a little more stability/smoothness/damping
-      const x = (node.nextX + node.lastX) / 2;
-      const y = (node.nextY + node.lastY) / 2;
-
       if (this.#canApplyForces(node)) {
+        // use the average of the last one and the current one for a little more stability/smoothness/damping
+        const x = (node.nextX + node.lastX) / 2;
+        const y = (node.nextY + node.lastY) / 2;
+
         node.x += Math.round(x * 100) / 100;
         node.y += Math.round(y * 100) / 100;
+
+        node.lastX = x;
+        node.lastY = y;
+      }
+      else {
+        node.lastX = 0;
+        node.lastY = 0;
       }
 
-      node.lastX = x;
-      node.lastY = y;
-
+      // reset so new forces can be added
       node.nextX = 0;
       node.nextY = 0;
     }
