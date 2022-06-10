@@ -168,6 +168,7 @@ class Graph {
 
     this.#clearCanvas();
 
+    this.ctx.lineWidth = 1;
     for (const edge of this.edges) {
       this.ctx.strokeStyle = edge[0] === this.hoveredNode?.id || edge[1] === this.hoveredNode?.id
         ? this.hoverColor
@@ -184,6 +185,10 @@ class Graph {
       this.ctx.beginPath();
       this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
       this.ctx.fill();
+      if (node === this.hoveredNode) {
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+      }
 
       if (this.scale > this.minTextScale && node.label) {
         this.ctx.fillStyle = this.textColor;
