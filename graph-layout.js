@@ -7,6 +7,7 @@ class Graph {
     edgeColor = 'darkgray',
     textColor = 'gray',
     font = '1rem Segoe UI',
+    minTextScale = 0.5,
     saveZoom = true,
   } = {}) {
     this.canvas = typeof canvas === 'string'
@@ -24,6 +25,7 @@ class Graph {
 
     this.ctx.textAlign = 'center';
     this.ctx.font = font;
+    this.minTextScale = minTextScale;
 
     this.nodeColor = nodeColor;
     this.hoverColor = hoverColor;
@@ -183,7 +185,7 @@ class Graph {
       this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
       this.ctx.fill();
 
-      if (this.scale > 0.5 && node.label) {
+      if (this.scale > this.minTextScale && node.label) {
         this.ctx.fillStyle = this.textColor;
         this.ctx.fillText(node.label, node.x, node.y + 25);
       }
