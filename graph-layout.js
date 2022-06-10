@@ -1,5 +1,5 @@
 class Graph {
-  constructor(id, {
+  constructor(canvas, {
     nodes = [],
     edges = [],
     nodeColor = 'gray',
@@ -8,8 +8,10 @@ class Graph {
     textColor = 'gray',
     saveZoom = true,
   } = {}) {
-    this.id = id;
-    this.canvas = document.getElementById(id);
+    this.canvas = typeof canvas === 'string'
+      ? document.getElementById(canvas)
+      : this.canvas = canvas;
+
     this.ctx = this.canvas.getContext('2d');
 
     this.width = this.canvas.clientWidth;
