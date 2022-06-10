@@ -2,10 +2,10 @@ class Graph {
   constructor(id, {
     nodes = [],
     edges = [],
-    nodeColor = 'black',
-    hoverColor = 'red',
-    edgeColor = 'gray',
-    textColor = 'black',
+    nodeColor = 'gray',
+    hoverColor = '#ba0f0f',
+    edgeColor = 'darkgray',
+    textColor = 'gray',
     saveZoom = true,
   } = {}) {
     this.id = id;
