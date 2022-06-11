@@ -409,8 +409,8 @@ class Graph {
    */
   #canvasCoords(x, y) {
     return [
-      this.#scaleCoord(x - this.canvas.offsetLeft, this.transform.e),
-      this.#scaleCoord(y - this.canvas.offsetTop, this.transform.f),
+      this.#scaleCoord(x - this.canvas.offsetLeft, 'x'),
+      this.#scaleCoord(y - this.canvas.offsetTop, 'y'),
     ];
   }
 
@@ -423,11 +423,12 @@ class Graph {
   }
 
   /**
-   * @param {number} coord The coordinate
-   * @param {number} center The center of the view?
-   * @returns {number}
+   * @param {number} coord The coordinate to scale, relative to the canvas
+   * @param {'x'|'y'} type
+   * @returns {number} The coordinate scaled and translated for the current canvas transform
    */
-  #scaleCoord(coord, center) {
+  #scaleCoord(coord, type) {
+    const center = type === 'x' ? this.transform.e : this.transform.f;
     return (coord - center) / this.scale;
   }
 }
