@@ -125,6 +125,10 @@ class Graph {
     return this.#draggedNode;
   }
 
+  get nodes() {
+    return this.#nodes;
+  }
+
   newNode({ label = 'test', size = 10, color = '' } = {}) {
     this.#nodes.push({
       label,
