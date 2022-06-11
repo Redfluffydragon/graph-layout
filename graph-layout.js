@@ -73,7 +73,7 @@ class Graph {
     this.cursorDot = false;
     this.mousePos = [0, 0];
 
-    this.render();
+    this.animation = null;
 
     this.canvas.addEventListener('mousemove', e => {
       this.#mouseMove(e);
@@ -132,7 +132,7 @@ class Graph {
   }
 
   render() {
-    requestAnimationFrame(() => {
+    this.animation = requestAnimationFrame(() => {
       this.render();
     });
 
@@ -180,6 +180,10 @@ class Graph {
     const now = performance.now();
     this.frameDiff = now - this.lastFrameTime;
     this.lastFrameTime = now;
+  }
+
+  stop() {
+    cancelAnimationFrame(this.animation);
   }
 
   #updatePositions() {
