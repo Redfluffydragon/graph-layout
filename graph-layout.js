@@ -464,7 +464,7 @@ class Graph {
     this.ctx.save();
     // reset transforms and clear the whole canvas
     this.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     // restore transforms
     this.ctx.restore();
   }
