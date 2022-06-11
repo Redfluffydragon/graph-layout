@@ -490,8 +490,8 @@ class Graph {
    */
   #canvasCoords(x, y) {
     return [
-      this.#scaleCoord(x - this.canvas.offsetLeft, 'x'),
-      this.#scaleCoord(y - this.canvas.offsetTop, 'y'),
+      this.#scaleCoord(x - this.canvas.offsetLeft + scrollX, 'x'),
+      this.#scaleCoord(y - this.canvas.offsetTop + scrollY, 'y'),
     ];
   }
 
