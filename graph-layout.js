@@ -137,22 +137,26 @@ class Graph {
    * @param {string} options.label A text label for the node
    * @param {number} options.size A size in pixels for the node
    * @param {string} options.color A CSS color for the node
-   * @param {Set} options.edges A Set of other nodes for the node to be connected to
+   * @param {Set} options.edges A Set of other node IDs for the node to be connected to
    */
   newNode({ label = 'test', size = 10, color = '', edges = new Set } = {}) {
     const node = {
       label,
       size,
       color,
+      edges,
       id: this.#nextID,
       x: Graph.rand(this.width * 0.2, this.width * 0.8),
       y: Graph.rand(this.height * 0.2, this.height * 0.8),
-      edges: edges,
       nextX: 0,
       nextY: 0,
       lastX: 0,
       lastY: 0,
     }
+
+    edges.forEach(id => {
+      this.#edges.add([node.id, id])
+    });
 
     this.#nodes.push(node);
 
@@ -161,19 +165,45 @@ class Graph {
     return node;
   }
 
-  removeNode(id) {
-    this.#nodes = this.#nodes.filter(node => node.id !== id);
-    // TODO remove edges attached to the node
+  /**
+   * Remove a specific node and all edges attached to that node
+   * @param {*} node The node to be removed
+   */
+  removeNode(node) {
+    this.#nodes = this.#nodes.filter(n => n !== node);
+    this.#nodes.forEach(n => n.edges.delete(node.id));
+
+    this.#edges.forEach(edge => {
+      if (edge.includes(node.id)) {
+        this.#edges.delete(edge);
+      }
+    });
   }
 
-  newEdge(edge) {
-    if (edge.length !== 2 || !Number.isInteger(edge[0])
-      || !Number.isInteger(edge[1]) || edge[0] >= this.#nextID
-      || edge[1] >= this.#nextID
-    ) {
-      throw new Error('Error creating new edge: invalid edge.');
-    }
-    this.#edges.push(edge);
+  /**
+   * Add an edge between the two nodes
+   * @param {*} node1 
+   * @param {*} node2 
+   */
+  newEdge(node1, node2) {
+    node1.edges.add(node2.id);
+    node2.edges.add(node1.id);
+
+    this.#edges.add([node1.id, node2.id]);
+  }
+
+  /**
+   * Remove any edge between the two given nodes
+   * @param {*} node1 
+   * @param {*} node2 
+   */
+  removeEdge(node1, node2) {
+    node1.edges.delete(node2.id);
+    node2.edges.delete(node1.id);
+
+    // I think this is faster maybe? (not that it matters much)
+    this.#edges.delete([node1.id, node2.id]);
+    this.#edges.delete([node2.id, node1.id]);
   }
 
   /** Start the graph rendering */
