@@ -141,19 +141,27 @@ class Graph {
    * @param {string} options.color A CSS color for the node
    * @param {Set} options.edges A Set of other nodes for the node to be connected to
    */
+  newNode({ label = 'test', size = 10, color = '', edges = new Set } = {}) {
+    const node = {
       label,
       size,
       color,
       id: this.#nextID,
       x: Graph.rand(this.width * 0.2, this.width * 0.8),
       y: Graph.rand(this.height * 0.2, this.height * 0.8),
+      edges: edges,
       nextX: 0,
       nextY: 0,
       lastX: 0,
       lastY: 0,
-    });
+    }
+
+    this.#nodes.push(node);
 
     this.#nextID++;
+
+    return node;
+  }
 
   removeNode(id) {
     this.#nodes = this.#nodes.filter(node => node.id !== id);
