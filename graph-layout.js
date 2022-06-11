@@ -154,6 +154,10 @@ class Graph {
     });
 
     this.#nextID++;
+
+  removeNode(id) {
+    this.#nodes = this.#nodes.filter(node => node.id !== id);
+    // TODO remove edges attached to the node
   }
 
   newEdge(edge) {
