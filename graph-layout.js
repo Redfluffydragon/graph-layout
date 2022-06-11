@@ -14,7 +14,6 @@ class Graph {
 
   constructor(canvas, {
     nodes = [],
-    edges = [],
     nodeColor = 'gray',
     hoverColor = '#ba0f0f',
     edgeColor = 'darkgray',
@@ -33,7 +32,7 @@ class Graph {
     this.centerNode = {
       x: this.width / 2,
       y: this.height / 2,
-    }
+    };
 
     this.ctx = this.canvas.getContext('2d');
     this.ctx.textAlign = 'center';
@@ -67,8 +66,7 @@ class Graph {
     this.#nodes = [];
     nodes.forEach(node => this.newNode(node));
 
-    this.#edges = [];
-    edges.forEach(edge => this.newEdge(edge));
+    this.#edges = new Set;
 
     this.#hoveredNode = null;
     this.#draggedNode = null;
