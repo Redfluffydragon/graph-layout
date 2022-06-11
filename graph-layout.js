@@ -1,4 +1,17 @@
 class Graph {
+  #startDragX;
+  #startDragY;
+  #nextID;
+  #nodes;
+  #edges;
+  #hoveredNode;
+  #draggedNode;
+  #dragging;
+  #lastFrameTime;
+  #frameDiff;
+  #mousePos;
+  #animation;
+
   constructor(canvas, {
     nodes = [],
     edges = [],
@@ -44,22 +57,22 @@ class Graph {
         : parseFloat(localStorage.getItem('scale'));
     }
 
-    this.startDragX = 0;
-    this.startDragY = 0;
+    this.#startDragX = 0;
+    this.#startDragY = 0;
 
     this.#setInitialTransform();
 
-    this.nextID = 0;
+    this.#nextID = 0;
 
-    this.nodes = [];
+    this.#nodes = [];
     nodes.forEach(node => this.newNode(node));
 
-    this.edges = [];
+    this.#edges = [];
     edges.forEach(edge => this.newEdge(edge));
 
-    this.hoveredNode = null;
-    this.draggedNode = null;
-    this.dragging = false;
+    this.#hoveredNode = null;
+    this.#draggedNode = null;
+    this.#dragging = false;
 
     this.centerForce = 0.52; // force towards center
     this.repelForce = 10; // force between nodes
@@ -67,13 +80,13 @@ class Graph {
     this.linkDistance = 150; // min link distance?
     this.damping = 0.01;
 
-    this.lastFrameTime = performance.now();
-    this.frameDiff = 0;
+    this.#lastFrameTime = performance.now();
+    this.#frameDiff = 0;
 
     this.cursorDot = false;
-    this.mousePos = [0, 0];
+    this.#mousePos = [0, 0];
 
-    this.animation = null;
+    this.#animation = null;
 
     this.canvas.addEventListener('mousemove', e => {
       this.#mouseMove(e);
@@ -97,19 +110,27 @@ class Graph {
   }
 
   get framerate() {
-    return Math.ceil(1000 / this.frameDiff);
+    return Math.ceil(1000 / this.#frameDiff);
   }
 
   get transform() {
     return this.ctx.getTransform();
   }
 
+  get hoveredNode() {
+    return this.#hoveredNode;
+  }
+
+  get draggedNode() {
+    return this.#draggedNode;
+  }
+
   newNode({ label = 'test', size = 10, color = '' } = {}) {
-    this.nodes.push({
+    this.#nodes.push({
       label,
       size,
       color,
-      id: this.nextID,
+      id: this.#nextID,
       x: Graph.rand(this.width * 0.2, this.width * 0.8),
       y: Graph.rand(this.height * 0.2, this.height * 0.8),
       nextX: 0,
@@ -118,46 +139,46 @@ class Graph {
       lastY: 0,
     });
 
-    this.nextID++;
+    this.#nextID++;
   }
 
   newEdge(edge) {
     if (edge.length !== 2 || !Number.isInteger(edge[0])
-      || !Number.isInteger(edge[1]) || edge[0] >= this.nextID
-      || edge[1] >= this.nextID
+      || !Number.isInteger(edge[1]) || edge[0] >= this.#nextID
+      || edge[1] >= this.#nextID
     ) {
       throw new Error('Error creating new edge: invalid edge.');
     }
-    this.edges.push(edge);
+    this.#edges.push(edge);
   }
 
   render() {
-    this.animation = requestAnimationFrame(() => {
+    this.#animation = requestAnimationFrame(() => {
       this.render();
     });
 
     this.#clearCanvas();
 
     this.ctx.lineWidth = 1;
-    for (const edge of this.edges) {
-      this.ctx.strokeStyle = edge[0] === this.hoveredNode?.id || edge[1] === this.hoveredNode?.id
+    for (const edge of this.#edges) {
+      this.ctx.strokeStyle = edge[0] === this.#hoveredNode?.id || edge[1] === this.#hoveredNode?.id
         ? this.hoverColor
         : this.edgeColor;
       this.ctx.beginPath();
-      this.ctx.moveTo(this.nodes[edge[0]].x, this.nodes[edge[0]].y);
-      this.ctx.lineTo(this.nodes[edge[1]].x, this.nodes[edge[1]].y);
+      this.ctx.moveTo(this.#nodes[edge[0]].x, this.#nodes[edge[0]].y);
+      this.ctx.lineTo(this.#nodes[edge[1]].x, this.#nodes[edge[1]].y);
       this.ctx.stroke();
     }
 
-    for (const node of this.nodes) {
-      this.ctx.fillStyle = node === this.hoveredNode
+    for (const node of this.#nodes) {
+      this.ctx.fillStyle = node === this.#hoveredNode
         ? this.hoverColor
         : (node.color || this.nodeColor);
 
       this.ctx.beginPath();
       this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
       this.ctx.fill();
-      if (node === this.hoveredNode) {
+      if (node === this.#hoveredNode) {
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
       }
@@ -171,39 +192,39 @@ class Graph {
     if (this.cursorDot) {
       this.ctx.fillStyle = 'purple';
       this.ctx.beginPath();
-      this.ctx.ellipse(this.mousePos[0], this.mousePos[1], 10, 10, 0, 0, 2 * Math.PI);
+      this.ctx.ellipse(this.#mousePos[0], this.#mousePos[1], 10, 10, 0, 0, 2 * Math.PI);
       this.ctx.fill();
     }
 
     this.#updatePositions();
 
     const now = performance.now();
-    this.frameDiff = now - this.lastFrameTime;
-    this.lastFrameTime = now;
+    this.#frameDiff = now - this.#lastFrameTime;
+    this.#lastFrameTime = now;
   }
 
   stop() {
-    cancelAnimationFrame(this.animation);
+    cancelAnimationFrame(this.#animation);
   }
 
   #updatePositions() {
     // Calculate forces
-    for (const targetNode of this.nodes) {
+    for (const targetNode of this.#nodes) {
       this.#calcCenterForce(targetNode);
 
-      for (const otherNode of this.nodes) {
+      for (const otherNode of this.#nodes) {
         if (otherNode !== targetNode) {
           this.#calcInternodeForce(targetNode, otherNode);
         }
       }
     }
 
-    for (const edge of this.edges) {
+    for (const edge of this.#edges) {
       this.#calcEdgeForce(edge);
     }
 
     // Apply forces
-    for (const node of this.nodes) {
+    for (const node of this.#nodes) {
       if (this.#canApplyForces(node)) {
         // use the average of the last one and the current one for a little more stability/smoothness/damping
         const x = (node.nextX + node.lastX) / 2;
@@ -248,8 +269,8 @@ class Graph {
   }
 
   #calcEdgeForce(edge) {
-    const node1 = this.nodes[edge[0]];
-    const node2 = this.nodes[edge[1]];
+    const node1 = this.#nodes[edge[0]];
+    const node2 = this.#nodes[edge[1]];
 
     const edgeLength = this.dist(node1, node2);
 
@@ -300,58 +321,58 @@ class Graph {
   }
 
   #canApplyForces(node) {
-    return node !== this.draggedNode;
+    return node !== this.#draggedNode;
   }
 
   #mouseMove(e) {
     const [x, y] = this.#canvasCoords(e.x, e.y);
-    this.mousePos = [x, y];
+    this.#mousePos = [x, y];
 
-    if (this.draggedNode !== null) {
-      this.draggedNode.x = x;
-      this.draggedNode.y = y;
+    if (this.#draggedNode !== null) {
+      this.#draggedNode.x = x;
+      this.#draggedNode.y = y;
       return;
     }
-    else if (this.dragging === true) {
-      this.ctx.translate((e.x - this.startDragX) / this.scale, (e.y - this.startDragY) / this.scale);
-      this.startDragX = e.x;
-      this.startDragY = e.y;
+    else if (this.#dragging === true) {
+      this.ctx.translate((e.x - this.#startDragX) / this.scale, (e.y - this.#startDragY) / this.scale);
+      this.#startDragX = e.x;
+      this.#startDragY = e.y;
 
       return;
     }
 
-    this.hoveredNode = null;
-    for (const node of this.nodes) {
+    this.#hoveredNode = null;
+    for (const node of this.#nodes) {
       if (Math.abs(node.x - x) < 10
         && Math.abs(node.y - y) < 10) {
-        this.hoveredNode = node;
+        this.#hoveredNode = node;
         break;
       }
     }
-    this.canvas.style.cursor = this.hoveredNode ? 'pointer' : 'default';
+    this.canvas.style.cursor = this.#hoveredNode ? 'pointer' : 'default';
   }
 
   #mouseDown(e) {
-    this.draggedNode = this.hoveredNode;
-    this.dragging = true;
-    if (!this.draggedNode) {
+    this.#draggedNode = this.#hoveredNode;
+    this.#dragging = true;
+    if (!this.#draggedNode) {
       this.canvas.style.cursor = 'grabbing';
     }
-    [this.startDragX, this.startDragY] = [e.x, e.y];
+    [this.#startDragX, this.#startDragY] = [e.x, e.y];
   }
 
   #mouseUp() {
-    if (!this.draggedNode) {
+    if (!this.#draggedNode) {
       this.canvas.style.cursor = 'default';
     }
-    this.draggedNode = null;
-    this.dragging = false;
+    this.#draggedNode = null;
+    this.#dragging = false;
   }
 
   #mouseLeave() {
-    this.draggedNode = null;
-    this.hoveredNode = null;
-    this.dragging = false;
+    this.#draggedNode = null;
+    this.#hoveredNode = null;
+    this.#dragging = false;
   }
 
   #zoom(e) {
