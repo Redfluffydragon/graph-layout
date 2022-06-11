@@ -113,24 +113,34 @@ class Graph {
     return Math.ceil(1000 / this.#frameDiff);
   }
 
+  /** The current canvas context transform */
   get transform() {
     return this.ctx.getTransform();
   }
 
+  /** The node currently being hovered over, or null otherwise */
   get hoveredNode() {
     return this.#hoveredNode;
   }
 
+  /** The node currently being dragged, or null otherwise */
   get draggedNode() {
     return this.#draggedNode;
   }
 
+  /** An array of all the nodes on the graph */
   get nodes() {
     return this.#nodes;
   }
 
-  newNode({ label = 'test', size = 10, color = '' } = {}) {
-    this.#nodes.push({
+  /**
+   * Create a new node
+   * @param {*} options
+   * @param {string} options.label A text label for the node
+   * @param {number} options.size A size in pixels for the node
+   * @param {string} options.color A CSS color for the node
+   * @param {Set} options.edges A Set of other nodes for the node to be connected to
+   */
       label,
       size,
       color,
@@ -156,6 +166,7 @@ class Graph {
     this.#edges.push(edge);
   }
 
+  /** Start the graph rendering */
   render() {
     this.#animation = requestAnimationFrame(() => {
       this.render();
@@ -207,6 +218,7 @@ class Graph {
     this.#lastFrameTime = now;
   }
 
+  /** Stop the graph rendering */
   stop() {
     cancelAnimationFrame(this.#animation);
   }
