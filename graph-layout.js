@@ -139,12 +139,13 @@ class Graph {
    * @param {string} options.color A CSS color for the node
    * @param {Set} options.edges A Set of other node IDs for the node to be connected to
    */
-  newNode({ label = 'test', size = 10, color = '', edges = new Set } = {}) {
+  newNode({ label = '', size = 10, color = '', edges = new Set, autoSize = false } = {}) {
     const node = {
       label,
       size,
       color,
       edges,
+      autoSize,
       id: this.#nextID,
       x: Graph.rand(this.width * 0.2, this.width * 0.8),
       y: Graph.rand(this.height * 0.2, this.height * 0.8),
@@ -157,6 +158,10 @@ class Graph {
     edges.forEach(id => {
       this.#edges.add([node.id, id])
     });
+
+    if (autoSize) {
+      node.size = this.#autoSize(node);
+    }
 
     this.#nodes.push(node);
 
@@ -171,7 +176,10 @@ class Graph {
    */
   removeNode(node) {
     this.#nodes = this.#nodes.filter(n => n !== node);
-    this.#nodes.forEach(n => n.edges.delete(node.id));
+    this.#nodes.forEach(n => {
+      n.edges.delete(node.id);
+      this.#updateSizes(n);
+    });
 
     this.#edges.forEach(edge => {
       if (edge.includes(node.id)) {
@@ -189,6 +197,8 @@ class Graph {
     node1.edges.add(node2.id);
     node2.edges.add(node1.id);
 
+    this.#updateSizes(node1, node2);
+
     this.#edges.add([node1.id, node2.id]);
   }
 
@@ -200,6 +210,8 @@ class Graph {
   removeEdge(node1, node2) {
     node1.edges.delete(node2.id);
     node2.edges.delete(node1.id);
+
+    this.#updateSizes(node1, node2);
 
     // I think this is faster maybe? (not that it matters much)
     this.#edges.delete([node1.id, node2.id]);
@@ -229,8 +241,6 @@ class Graph {
       this.ctx.fillStyle = node === this.#hoveredNode || node.edges.has(this.#hoveredNode?.id)
         ? this.hoverColor
         : (node.color || this.nodeColor);
-
-      node.size = node.size === 'auto' ? 10 + node.edges.size * 0.2 : node.size;
 
       this.ctx.beginPath();
       this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
@@ -380,6 +390,15 @@ class Graph {
 
   #canApplyForces(node) {
     return node !== this.#draggedNode;
+  }
+
+  #autoSize(node) {
+    return 10 + node.edges.size * 0.2;
+  }
+
+  #updateSizes(node1, node2) {
+    node1.autoSize && (node1.size = this.#autoSize(node1));
+    node2?.autoSize && (node2.size = this.#autoSize(node2));
   }
 
   #mouseMove(e) {
