@@ -230,6 +230,8 @@ class Graph {
         ? this.hoverColor
         : (node.color || this.nodeColor);
 
+      node.size = node.size === 'auto' ? 10 + node.edges.size * 0.2 : node.size;
+
       this.ctx.beginPath();
       this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
       this.ctx.fill();
@@ -240,7 +242,7 @@ class Graph {
 
       if (this.scale > this.minTextScale && node.label) {
         this.ctx.fillStyle = this.textColor;
-        this.ctx.fillText(node.label, node.x, node.y + 25);
+        this.ctx.fillText(node.label, node.x, node.y + node.size + 15);
       }
     }
 
@@ -304,7 +306,7 @@ class Graph {
   }
 
   #calcInternodeForce(node1, node2) {
-    const distance = this.dist(node1, node2);
+    const distance = this.dist(node1, node2) - (node1.size + node2.size) / 2;
     const force = Math.min(this.repelForce * 2000 / (distance ** 2), 50);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
@@ -399,8 +401,8 @@ class Graph {
 
     this.#hoveredNode = null;
     for (const node of this.#nodes) {
-      if (Math.abs(node.x - x) < 10
-        && Math.abs(node.y - y) < 10) {
+      if (Math.abs(node.x - x) < node.size
+        && Math.abs(node.y - y) < node.size) {
         this.#hoveredNode = node;
         break;
       }
