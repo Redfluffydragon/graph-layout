@@ -226,7 +226,7 @@ class Graph {
     }
 
     for (const node of this.#nodes) {
-      this.ctx.fillStyle = node === this.#hoveredNode
+      this.ctx.fillStyle = node === this.#hoveredNode || node.edges.has(this.#hoveredNode?.id)
         ? this.hoverColor
         : (node.color || this.nodeColor);
 
