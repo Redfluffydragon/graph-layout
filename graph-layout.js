@@ -492,8 +492,8 @@ class Graph {
    */
   #canvasCoords(x, y) {
     return [
-      this.#scaleCoord(x - this.canvas.offsetLeft + scrollX, 'x'),
-      this.#scaleCoord(y - this.canvas.offsetTop + scrollY, 'y'),
+      (((x - this.canvas.offsetLeft + scrollX) / (this.width / this.canvas.width)) - this.transform.e) / this.scale,
+      (((y - this.canvas.offsetTop + scrollY) / (this.height / this.canvas.height)) - this.transform.f) / this.scale,
     ];
   }
 
@@ -503,15 +503,5 @@ class Graph {
    */
   #scaledPart(dim) {
     return (dim * (1 - this.scale));
-  }
-
-  /**
-   * @param {number} coord The coordinate to scale, relative to the canvas
-   * @param {'x'|'y'} type
-   * @returns {number} The coordinate scaled and translated for the current canvas transform
-   */
-  #scaleCoord(coord, type) {
-    const center = type === 'x' ? this.transform.e : this.transform.f;
-    return (coord - center) / this.scale;
   }
 }
