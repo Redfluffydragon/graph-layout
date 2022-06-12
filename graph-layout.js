@@ -22,6 +22,7 @@ class Graph {
     font = 'bold 1rem Segoe UI',
     minTextScale = 0.5,
     saveZoom = true,
+    autoSize,
   } = {}) {
     this.canvas = typeof canvas === 'string'
       ? document.getElementById(canvas)
@@ -77,6 +78,10 @@ class Graph {
     this.linkForce = 1; // force on links
     this.linkDistance = 150; // min link distance?
     this.damping = 0.01;
+
+    if (autoSize && typeof autoSize === 'function') {
+      this.autoSize = autoSize;
+    }
 
     this.#lastFrameTime = performance.now();
     this.#frameDiff = 0;
@@ -160,7 +165,7 @@ class Graph {
     });
 
     if (autoSize) {
-      node.size = this.#autoSize(node);
+      node.size = this.autoSize(node);
     }
 
     this.#nodes.push(node);
@@ -435,13 +440,13 @@ class Graph {
     return node !== this.#draggedNode;
   }
 
-  #autoSize(node) {
+  autoSize(node) {
     return 10 + node.edges.size * 0.2;
   }
 
   #updateSizes(node1, node2) {
-    node1.autoSize && (node1.size = this.#autoSize(node1));
-    node2?.autoSize && (node2.size = this.#autoSize(node2));
+    node1.autoSize && (node1.size = this.autoSize(node1));
+    node2?.autoSize && (node2.size = this.autoSize(node2));
   }
 
   #mouseMove(e) {
