@@ -17,9 +17,9 @@ class Graph {
     nodeColor = 'gray',
     hoverColor = '#ba0f0f',
     edgeColor = 'darkgray',
-    textColor = 'gray',
+    textColor = '#dddd',
     background = '',
-    font = '1rem Segoe UI',
+    font = 'bold 1rem Segoe UI',
     minTextScale = 0.5,
     saveZoom = true,
   } = {}) {
