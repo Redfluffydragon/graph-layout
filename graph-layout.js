@@ -228,13 +228,13 @@ class Graph {
 
     this.ctx.lineWidth = 1;
     for (const edge of this.#edges) {
-      this.ctx.strokeStyle = edge[0] === this.#hoveredNode?.id || edge[1] === this.#hoveredNode?.id
-        ? this.hoverColor
-        : this.edgeColor;
-      this.ctx.beginPath();
-      this.ctx.moveTo(this.#nodes[edge[0]].x, this.#nodes[edge[0]].y);
-      this.ctx.lineTo(this.#nodes[edge[1]].x, this.#nodes[edge[1]].y);
-      this.ctx.stroke();
+      if (edge[0] !== this.#hoveredNode?.id && edge[1] !== this.#hoveredNode?.id) {
+        this.ctx.strokeStyle = this.edgeColor;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.#nodes[edge[0]].x, this.#nodes[edge[0]].y);
+        this.ctx.lineTo(this.#nodes[edge[1]].x, this.#nodes[edge[1]].y);
+        this.ctx.stroke();
+      }
     }
 
     for (const node of this.#nodes) {
@@ -242,17 +242,60 @@ class Graph {
         ? this.hoverColor
         : (node.color || this.nodeColor);
 
-      this.ctx.beginPath();
-      this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
-      this.ctx.fill();
-      if (node === this.#hoveredNode) {
-        this.ctx.lineWidth = 2;
-        this.ctx.stroke();
+      if (node !== this.#hoveredNode && !node.edges.has(this.#hoveredNode?.id)) {
+
+        this.ctx.fillStyle = (node.color || this.nodeColor);
+        this.ctx.beginPath();
+        this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
+        this.ctx.fill();
+        if (node === this.#hoveredNode) {
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+        }
+
+        if (this.scale > this.minTextScale && node.label) {
+          this.ctx.fillStyle = this.textColor;
+          this.ctx.fillText(node.label, node.x, node.y + node.size + 15);
+        }
+      }
+    }
+
+    // draw hovered and connected nodes on top of shaded rectangle
+    if (this.#hoveredNode !== null) {
+      this.ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      this.ctx.save();
+      this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.restore();
+
+      this.ctx.lineWidth = 1;
+      for (const edge of this.#edges) {
+        if (edge[0] === this.#hoveredNode?.id || edge[1] === this.#hoveredNode?.id) {
+          this.ctx.strokeStyle = this.hoverColor;
+          this.ctx.beginPath();
+          this.ctx.moveTo(this.#nodes[edge[0]].x, this.#nodes[edge[0]].y);
+          this.ctx.lineTo(this.#nodes[edge[1]].x, this.#nodes[edge[1]].y);
+          this.ctx.stroke();
+        }
       }
 
-      if (this.scale > this.minTextScale && node.label) {
-        this.ctx.fillStyle = this.textColor;
-        this.ctx.fillText(node.label, node.x, node.y + node.size + 15);
+      for (const node of this.#nodes) {
+        if (node === this.#hoveredNode || node.edges.has(this.#hoveredNode?.id)) {
+          this.ctx.fillStyle = this.hoverColor;
+          this.ctx.beginPath();
+          this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
+          this.ctx.fill();
+          if (node === this.#hoveredNode) {
+            this.ctx.strokeStyle = this.textColor;
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+          }
+
+          if (this.scale > this.minTextScale && node.label) {
+            this.ctx.fillStyle = this.textColor;
+            this.ctx.fillText(node.label, node.x, node.y + node.size + 15);
+          }
+        }
       }
     }
 
