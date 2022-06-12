@@ -411,7 +411,10 @@ class Graph {
       return;
     }
     else if (this.#dragging === true) {
-      this.ctx.translate((e.x - this.#startDragX) / this.scale, (e.y - this.#startDragY) / this.scale);
+      this.ctx.translate(
+        (e.x - this.#startDragX) / this.scale / (this.width / this.canvas.width),
+        (e.y - this.#startDragY) / this.scale / (this.height / this.canvas.height)
+      );
       this.#startDragX = e.x;
       this.#startDragY = e.y;
 
