@@ -76,7 +76,7 @@ class Graph {
     this.#draggedNode = null;
     this.#dragging = false;
 
-    this.centerForce = 0.52; // force towards center
+    this.centerForce = 0.5; // force towards center
     this.repelForce = 10; // force between nodes
     this.linkForce = 1; // force on links
     this.linkDistance = 150; // min link distance?
