@@ -95,6 +95,10 @@ class Graph {
       y: 0,
     };
 
+    this.outlineCanvas = false;
+    this.centerDot = false;
+    this.actualCenterDot = false;
+
     this.#animation = null;
 
     this.canvas.addEventListener('mousemove', e => {
@@ -271,6 +275,27 @@ class Graph {
       }
     }
 
+    if (this.centerDot) {
+      this.ctx.fillStyle = 'blue';
+      this.ctx.beginPath();
+      this.ctx.ellipse(this.width / 2, this.height / 2, 10, 10, 0, 0, 2 * Math.PI);
+      this.ctx.fill();
+    }
+
+    if (this.actualCenterDot) {
+      this.ctx.fillStyle = 'green';
+      this.ctx.beginPath();
+      this.ctx.ellipse(this.#actualCenter('x'), this.#actualCenter('y'), 10, 10, 0, 0, 2 * Math.PI);
+      this.ctx.fill();
+    }
+
+    if (this.outlineCanvas) {
+      this.ctx.strokeStyle = 'white';
+      this.ctx.strokeRect(0, 0, this.width, this.height);
+      this.ctx.stroke();
+    }
+
+
     // draw hovered and connected nodes on top of shaded rectangle
     if (this.#hoveredNode !== null) {
       this.ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
@@ -414,6 +439,16 @@ class Graph {
    */
   dist(node1, node2) {
     return Math.sqrt((node1.x - node2.x) ** 2 + (node1.y - node2.y) ** 2);
+  }
+
+  /**
+   * @param {'x'|'y'} type 
+   * @returns {number}
+   */
+  #actualCenter(type) {
+    return type === 'x'
+      ? (this.centerNode.x - this.transform.e) / this.scale + (this.canvas.height - this.height) / this.scale / 2
+      : (this.centerNode.y - this.transform.f) / this.scale + (this.canvas.width - this.width) / this.scale / 2;
   }
 
   /**
