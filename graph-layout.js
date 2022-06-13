@@ -606,8 +606,8 @@ class Graph {
   #canvasCoords(x, y) {
     const b = this.canvas.getBoundingClientRect();
     return [
-      (((x - b.x + scrollX) / this.#pageScale) - this.transform.e) / this.scale,
-      (((y - b.y + scrollY) / this.#pageScale) - this.transform.f) / this.scale,
+      (((x - b.x) / this.#pageScale) - this.transform.e) / this.scale,
+      (((y - b.y) / this.#pageScale) - this.transform.f) / this.scale,
     ];
   }
 
