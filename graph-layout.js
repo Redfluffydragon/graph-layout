@@ -548,10 +548,9 @@ class Graph {
 
   /** Set the scale and center the graph in the canvas */
   #setInitialTransform() {
-    this.ctx.setTransform(this.scale, 0, 0, this.scale,
-      this.#scaledPart(this.canvas.width / 2 + (this.canvas.width - this.width) * this.scale),
-      this.#scaledPart(this.canvas.width / 2 + (this.canvas.width - this.width) * this.scale)
-    );
+    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.canvas.width / 2, this.canvas.height / 2);
+
+    this.ctx.translate(- this.width / 2, - this.height / 2)
   }
 
   /**
