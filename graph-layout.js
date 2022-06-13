@@ -1,4 +1,5 @@
 class Graph {
+  #pageScale;
   #startDragX;
   #startDragY;
   #nextID;
@@ -56,6 +57,8 @@ class Graph {
         ? 1
         : parseFloat(localStorage.getItem('scale'));
     }
+
+    this.#pageScale = this.width / this.canvas.width;
 
     this.#startDragX = 0;
     this.#startDragY = 0;
@@ -463,8 +466,8 @@ class Graph {
     }
     else if (this.#dragging === true) {
       this.ctx.translate(
-        (e.x - this.#startDragX) / this.scale / (this.width / this.canvas.width),
-        (e.y - this.#startDragY) / this.scale / (this.height / this.canvas.height)
+        (e.x - this.#startDragX) / this.scale / this.#pageScale,
+        (e.y - this.#startDragY) / this.scale / this.#pageScale
       );
       this.#startDragX = e.x;
       this.#startDragY = e.y;
