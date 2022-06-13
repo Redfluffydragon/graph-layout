@@ -408,7 +408,7 @@ class Graph {
 
   #calcCenterForce(node) {
     const distance = this.dist(this.centerNode, node);
-    const force = this.centerForce * 0.00002 * (distance ** 2);
+    const force = this.centerForce * 0.00001 * (distance ** 2);
     const [x, y] = this.#forceDirection(this.centerNode, node, force);
 
     node.nextX -= x;
