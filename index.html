@@ -20,41 +20,10 @@
     canvas {
       border: 2px solid black;
     }
-
-    .wrapper {
-      position: relative;
-    }
-
-    .crosshairs {
-      position: absolute;
-      background: rgba(255, 255, 255, 0.201);
-      pointer-events: none;
-
-    }
-
-    .h-center {
-      width: 100%;
-      height: 5px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    .v-center {
-      height: 100%;
-      width: 5px;
-      left: 50%;
-      transform: translateX(-50%);
-      top: 0;
-    }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <canvas id="demo" width="700" height="700">
-    </canvas>
-    <div class="crosshairs h-center"></div>
-    <div class="crosshairs v-center"></div>
-  </div>
+    <canvas id="demo" width="700" height="700"></canvas>
   <span>Framerate: <span id="framerate"></span> fps</span>
 </body>
 </html>
