@@ -9,7 +9,7 @@ class Graph {
   #dragging;
   #lastFrameTime;
   #frameDiff;
-  #mousePos;
+  #mouseNode;
   #animation;
 
   constructor(canvas, {
@@ -87,7 +87,10 @@ class Graph {
     this.#frameDiff = 0;
 
     this.cursorDot = false;
-    this.#mousePos = [0, 0];
+    this.#mouseNode = {
+      x: 0,
+      y: 0,
+    };
 
     this.#animation = null;
 
@@ -307,7 +310,7 @@ class Graph {
     if (this.cursorDot) {
       this.ctx.fillStyle = 'purple';
       this.ctx.beginPath();
-      this.ctx.ellipse(this.#mousePos[0], this.#mousePos[1], 10, 10, 0, 0, 2 * Math.PI);
+      this.ctx.ellipse(this.#mouseNode.x, this.#mouseNode.y, 10, 10, 0, 0, 2 * Math.PI);
       this.ctx.fill();
     }
 
@@ -451,7 +454,7 @@ class Graph {
 
   #mouseMove(e) {
     const [x, y] = this.#canvasCoords(e.x, e.y);
-    this.#mousePos = [x, y];
+    this.#mouseNode = { x, y };
 
     if (this.#draggedNode !== null) {
       this.#draggedNode.x = x;
@@ -471,8 +474,7 @@ class Graph {
 
     this.#hoveredNode = null;
     for (const node of this.#nodes) {
-      if (Math.abs(node.x - x) < node.size
-        && Math.abs(node.y - y) < node.size) {
+      if (this.dist(node, this.#mouseNode) <= node.size) {
         this.#hoveredNode = node;
         break;
       }
