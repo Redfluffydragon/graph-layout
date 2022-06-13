@@ -570,9 +570,10 @@ class Graph {
    * @returns {[number, number]}
    */
   #canvasCoords(x, y) {
+    const b = this.canvas.getBoundingClientRect();
     return [
-      (((x - this.canvas.offsetLeft + scrollX) / (this.width / this.canvas.width)) - this.transform.e) / this.scale,
-      (((y - this.canvas.offsetTop + scrollY) / (this.height / this.canvas.height)) - this.transform.f) / this.scale,
+      (((x - b.x + scrollX) / this.#pageScale) - this.transform.e) / this.scale,
+      (((y - b.y + scrollY) / this.#pageScale) - this.transform.f) / this.scale,
     ];
   }
 
