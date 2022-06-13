@@ -510,7 +510,7 @@ class Graph {
     this.#clearCanvas();
 
     const factor = e.deltaY / -1250;
-    const newScale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 20);
+    const newScale = Math.min(Math.max(Math.round((this.scale + factor) * 10) / 10, 0.1), 5);
 
     if (newScale === this.scale) {
       return;
