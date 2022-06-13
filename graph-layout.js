@@ -120,6 +120,10 @@ class Graph {
     this.canvas.addEventListener('wheel', (e) => {
       this.#zoom(e);
     });
+
+    addEventListener('resize', () => {
+      this.#resize();
+    })
   }
 
   get framerate() {
@@ -569,6 +573,16 @@ class Graph {
     if (this.saveZoom) {
       localStorage.setItem('scale', this.scale);
     }
+  }
+
+  #resize() {
+    this.width = this.canvas.clientWidth;
+    this.height = this.canvas.clientHeight;
+    this.centerNode = {
+      x: this.width / 2,
+      y: this.height / 2,
+    };
+    this.#pageScale = this.width / this.canvas.width;
   }
 
   #clearCanvas() {
