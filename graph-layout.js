@@ -12,6 +12,7 @@ class Graph {
   #frameDiff;
   #mouseNode;
   #animation;
+  #frameCount;
 
   constructor(canvas, {
     nodeColor = 'gray',
@@ -98,6 +99,7 @@ class Graph {
     this.actualCenterDot = false;
 
     this.#animation = null;
+    this.#frameCount = 0;
 
     this.canvas.addEventListener('mousemove', e => {
       this.#mouseMove(e);
@@ -353,6 +355,13 @@ class Graph {
     }
 
     this.#updatePositions();
+
+    if (this.#frameCount < 15) {
+      for (let i = 0; i < Math.round(- 200 / (1 + Math.exp(- this.#frameCount / 2)) + 200); i++) {
+        this.#updatePositions();
+      }
+      this.#frameCount++;
+    }
 
     const now = performance.now();
     this.#frameDiff = now - this.#lastFrameTime;
