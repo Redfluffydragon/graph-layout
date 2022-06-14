@@ -235,6 +235,14 @@ class Graph {
     this.#edges.delete([node2.id, node1.id]);
   }
 
+  updateEdges() {
+    this.#nodes.forEach(node => {
+      node.edges.forEach(edge => {
+        this.newEdge(node, this.#nodes[edge]);
+      });
+    });
+  }
+
   /** Start the graph rendering */
   render() {
     this.#animation = requestAnimationFrame(() => {
