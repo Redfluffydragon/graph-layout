@@ -484,7 +484,7 @@ class Graph {
   }
 
   autoSize(node) {
-    return 10 + node.edges.size * 0.2;
+    return 100 / (1 + Math.exp(- node.edges.size / 100)) - 40;
   }
 
   #updateSizes(node1, node2) {
