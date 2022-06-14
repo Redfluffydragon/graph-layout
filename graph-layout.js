@@ -14,7 +14,6 @@ class Graph {
   #animation;
 
   constructor(canvas, {
-    nodes = [],
     nodeColor = 'gray',
     hoverColor = '#ba0f0f',
     edgeColor = 'darkgray',
@@ -68,7 +67,6 @@ class Graph {
     this.#nextID = 0;
 
     this.#nodes = [];
-    nodes.forEach(node => this.newNode(node));
 
     this.#edges = new Set;
 
