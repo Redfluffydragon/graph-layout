@@ -414,7 +414,7 @@ class Graph {
   }
 
   #calcInternodeForce(node1, node2) {
-    const distance = this.dist(node1, node2) - node1.size - node2.size;
+    const distance = Math.max(this.dist(node1, node2) - node1.size - node2.size, 0.0001);
     const force = Math.min(this.repelForce * 2000 / (distance ** 2), 30);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
