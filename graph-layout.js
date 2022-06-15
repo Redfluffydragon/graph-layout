@@ -253,6 +253,10 @@ class Graph {
 
     this.#clearCanvas();
 
+    if (this.#hoveredNode && !this.#isHovered(this.#hoveredNode)) {
+      this.#hoveredNode = null;
+    }
+
     this.ctx.lineWidth = 1;
     for (const edge of this.#edges) {
       if (edge[0] !== this.#hoveredNode?.id && edge[1] !== this.#hoveredNode?.id) {
@@ -527,7 +531,7 @@ class Graph {
 
     this.#hoveredNode = null;
     for (const node of this.#nodes) {
-      if (this.dist(node, this.#mouseNode) <= node.size) {
+      if (this.#isHovered(node)) {
         this.#hoveredNode = node;
         break;
       }
@@ -634,6 +638,10 @@ class Graph {
       (((x - b.x) / this.#pageScale) - this.transform.e) / this.scale,
       (((y - b.y) / this.#pageScale) - this.transform.f) / this.scale,
     ];
+  }
+
+  #isHovered(node) {
+    return this.dist(node, this.#mouseNode) <= node.size;
   }
 
   /**
