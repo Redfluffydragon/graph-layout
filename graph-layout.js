@@ -318,7 +318,7 @@ class Graph {
 
       this.ctx.lineWidth = 1;
       for (const edge of this.#edges) {
-        if (edge[0] === this.#hoveredNode?.id || edge[1] === this.#hoveredNode?.id) {
+        if (edge[0] === this.#hoveredNode.id || edge[1] === this.#hoveredNode.id) {
           this.ctx.strokeStyle = this.hoverColor;
           this.ctx.beginPath();
           this.ctx.moveTo(this.#nodes[edge[0]].x, this.#nodes[edge[0]].y);
@@ -328,7 +328,7 @@ class Graph {
       }
 
       for (const node of this.#nodes) {
-        if (node === this.#hoveredNode || node.edges.has(this.#hoveredNode?.id)) {
+        if (node === this.#hoveredNode || node.edges.has(this.#hoveredNode.id)) {
           this.ctx.fillStyle = this.hoverColor;
           this.ctx.beginPath();
           this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
