@@ -643,12 +643,4 @@ class Graph {
   #isHovered(node) {
     return this.dist(node, this.#mouseNode) <= node.size;
   }
-
-  /**
-   * @param {number} dim 
-   * @returns {number}
-   */
-  #scaledPart(dim) {
-    return dim * (1 - this.scale);
-  }
 }
