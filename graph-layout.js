@@ -24,6 +24,11 @@ class Graph {
     minTextScale = 0.5,
     saveZoom = true,
     autoSize,
+    centerForce = 0.5,
+    repelForce = 10,
+    linkForce = 1,
+    linkDistance = 150,
+    damping = 0.01,
   } = {}) {
     this.canvas = typeof canvas === 'string'
       ? document.getElementById(canvas)
@@ -75,11 +80,11 @@ class Graph {
     this.#draggedNode = null;
     this.#dragging = false;
 
-    this.centerForce = 0.5; // force towards center
-    this.repelForce = 10; // force between nodes
-    this.linkForce = 1; // force on links
-    this.linkDistance = 150; // min link distance?
-    this.damping = 0.01;
+    this.centerForce = centerForce; // force towards center
+    this.repelForce = repelForce; // force between nodes
+    this.linkForce = linkForce; // force on links
+    this.linkDistance = linkDistance; // min link distance?
+    this.damping = damping;
 
     if (autoSize && typeof autoSize === 'function') {
       this.autoSize = autoSize;
