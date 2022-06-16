@@ -17,7 +17,7 @@ class Graph {
   constructor(canvas, {
     nodeColor = 'gray',
     hoverColor = '#ba0f0f',
-    edgeColor = 'darkgray',
+    edgeColor = '#444444a2',
     textColor = '#dddd',
     background = '',
     font = 'bold 1rem Segoe UI',
