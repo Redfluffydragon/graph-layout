@@ -105,30 +105,6 @@ class Graph {
 
     this.#animation = null;
     this.#frameCount = 0;
-
-    this.canvas.addEventListener('mousemove', e => {
-      this.#mouseMove(e);
-    });
-
-    this.canvas.addEventListener('mousedown', (e) => {
-      this.#mouseDown(e);
-    });
-
-    this.canvas.addEventListener('mouseup', () => {
-      this.#mouseUp();
-    });
-
-    this.canvas.addEventListener('mouseleave', () => {
-      this.#mouseLeave();
-    });
-
-    this.canvas.addEventListener('wheel', (e) => {
-      this.#zoom(e);
-    });
-
-    addEventListener('resize', () => {
-      this.#resize();
-    })
   }
 
   get framerate() {
@@ -252,6 +228,8 @@ class Graph {
 
   /** Start the graph rendering */
   render() {
+    this.#addEventListeners();
+    
     this.#animation = requestAnimationFrame(() => {
       this.render();
     });
@@ -376,6 +354,28 @@ class Graph {
   /** Stop the graph rendering */
   stop() {
     cancelAnimationFrame(this.#animation);
+    this.#removeEventListeners();
+  }
+
+  handleEvent(e) {
+    if (e.type === 'mousemove') {
+      this.#mouseMove(e);
+    }
+    else if (e.type === 'mousedown') {
+      this.#mouseDown(e);
+    }
+    else if (e.type === 'mouseup') {
+      this.#mouseUp();
+    }
+    else if (e.type === 'mouseleave') {
+      this.#mouseLeave();
+    }
+    else if (e.type === 'wheel') {
+      this.#zoom(e);
+    }
+    else if (e.type === 'resize') {
+      this.#resize();
+    }
   }
 
   #updatePositions() {
@@ -603,6 +603,34 @@ class Graph {
       y: this.height / 2,
     };
     this.#pageScale = this.width / this.canvas.width;
+  }
+
+  #addEventListeners() {
+    this.canvas.addEventListener('mousemove', this);
+
+    this.canvas.addEventListener('mousedown', this);
+
+    this.canvas.addEventListener('mouseup', this);
+
+    this.canvas.addEventListener('mouseleave', this);
+
+    this.canvas.addEventListener('wheel', this);
+
+    addEventListener('resize', this);
+  }
+
+  #removeEventListeners() {
+    this.canvas.removeEventListener('mousemove', this);
+
+    this.canvas.removeEventListener('mousedown', this);
+
+    this.canvas.removeEventListener('mouseup', this);
+
+    this.canvas.removeEventListener('mouseleave', this);
+
+    this.canvas.removeEventListener('wheel', this);
+
+    removeEventListener('resize', this);
   }
 
   #clearCanvas() {
