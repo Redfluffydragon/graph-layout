@@ -34,6 +34,7 @@ class Graph {
       ? document.getElementById(canvas)
       : canvas;
 
+    this.canvas.style.touchAction = 'none'; // important so touch dragging, panning, etc. works
     this.width = this.canvas.clientWidth;
     this.height = this.canvas.clientHeight;
     this.centerNode = {
@@ -229,7 +230,7 @@ class Graph {
   /** Start the graph rendering */
   render() {
     this.#addEventListeners();
-    
+
     this.#animation = requestAnimationFrame(() => {
       this.render();
     });
@@ -355,27 +356,6 @@ class Graph {
   stop() {
     cancelAnimationFrame(this.#animation);
     this.#removeEventListeners();
-  }
-
-  handleEvent(e) {
-    if (e.type === 'mousemove') {
-      this.#mouseMove(e);
-    }
-    else if (e.type === 'mousedown') {
-      this.#mouseDown(e);
-    }
-    else if (e.type === 'mouseup') {
-      this.#mouseUp();
-    }
-    else if (e.type === 'mouseleave') {
-      this.#mouseLeave();
-    }
-    else if (e.type === 'wheel') {
-      this.#zoom(e);
-    }
-    else if (e.type === 'resize') {
-      this.#resize();
-    }
   }
 
   #updatePositions() {
@@ -515,6 +495,8 @@ class Graph {
   }
 
   #mouseMove(e) {
+    e.preventDefault();
+
     const [x, y] = this.#canvasCoords(e.x, e.y);
     this.#mouseNode = { x, y };
 
@@ -534,6 +516,10 @@ class Graph {
       return;
     }
 
+    this.#findHoveredNode();
+  }
+
+  #findHoveredNode() {
     this.#hoveredNode = null;
     for (const node of this.#nodes) {
       if (this.#isHovered(node)) {
@@ -545,6 +531,10 @@ class Graph {
   }
 
   #mouseDown(e) {
+    if (e.pointerType === 'touch') {
+      this.#findHoveredNode();
+    }
+
     this.#draggedNode = this.#hoveredNode;
     this.#dragging = true;
     if (!this.#draggedNode) {
@@ -605,14 +595,35 @@ class Graph {
     this.#pageScale = this.width / this.canvas.width;
   }
 
+  handleEvent(e) {
+    if (e.type === 'pointermove') {
+      this.#mouseMove(e);
+    }
+    else if (e.type === 'pointerdown') {
+      this.#mouseDown(e);
+    }
+    else if (e.type === 'pointerup') {
+      this.#mouseUp();
+    }
+    else if (e.type === 'pointerleave') {
+      this.#mouseLeave();
+    }
+    else if (e.type === 'wheel') {
+      this.#zoom(e);
+    }
+    else if (e.type === 'resize') {
+      this.#resize();
+    }
+  }
+
   #addEventListeners() {
-    this.canvas.addEventListener('mousemove', this);
+    this.canvas.addEventListener('pointermove', this, { passive: false });
 
-    this.canvas.addEventListener('mousedown', this);
+    this.canvas.addEventListener('pointerdown', this);
 
-    this.canvas.addEventListener('mouseup', this);
+    this.canvas.addEventListener('pointerup', this);
 
-    this.canvas.addEventListener('mouseleave', this);
+    this.canvas.addEventListener('pointerleave', this);
 
     this.canvas.addEventListener('wheel', this);
 
