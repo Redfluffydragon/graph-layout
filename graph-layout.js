@@ -59,9 +59,8 @@ class Graph {
     this.scale = 1;
     this.saveZoom = saveZoom;
     if (this.saveZoom) {
-      this.scale = isNaN(localStorage.getItem('scale'))
-        ? 1
-        : parseFloat(localStorage.getItem('scale'));
+      const getScale = localStorage.getItem('graph-layout-scale');
+      this.scale = isNaN(getScale) ? 1 : parseFloat(getScale);
     }
 
     this.#pageScale = this.width / this.canvas.width;
@@ -581,7 +580,7 @@ class Graph {
     this.scale = newScale;
 
     if (this.saveZoom) {
-      localStorage.setItem('scale', this.scale);
+      localStorage.setItem('graph-layout-scale', this.scale);
     }
   }
 
