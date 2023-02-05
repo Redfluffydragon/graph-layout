@@ -1,5 +1,6 @@
-class Graph {
+export default class Graph {
   #pageScale;
+  #startDrag;
   #startDragX;
   #startDragY;
   #nextID;
@@ -14,25 +15,26 @@ class Graph {
   #animation;
   #frameCount;
 
-  constructor(canvas, {
-    nodeColor = 'gray',
-    hoverColor = '#ba0f0f',
-    edgeColor = '#444444a2',
-    textColor = '#dddd',
-    background = '',
-    font = 'bold 1rem Segoe UI',
-    minTextScale = 0.5,
-    saveZoom = true,
-    autoSize,
-    centerForce = 0.5,
-    repelForce = 10,
-    linkForce = 1,
-    linkDistance = 150,
-    damping = 0.01,
-  } = {}) {
-    this.canvas = typeof canvas === 'string'
-      ? document.getElementById(canvas)
-      : canvas;
+  constructor(
+    canvas,
+    {
+      nodeColor = 'gray',
+      hoverColor = '#ba0f0f',
+      edgeColor = '#444444a2',
+      textColor = '#dddd',
+      background = '',
+      font = 'bold 1rem Segoe UI',
+      minTextScale = 0.5,
+      saveZoom = true,
+      autoSize,
+      centerForce = 0.5,
+      repelForce = 10,
+      linkForce = 1,
+      linkDistance = 150,
+      damping = 0.01,
+    } = {}
+  ) {
+    this.canvas = typeof canvas === 'string' ? document.getElementById(canvas) : canvas;
 
     this.canvas.style.touchAction = 'none'; // important so touch dragging, panning, etc. works
     this.width = this.canvas.clientWidth;
@@ -139,7 +141,14 @@ class Graph {
    * @param {string} options.color A CSS color for the node
    * @param {Set} options.edges A Set of other node IDs for the node to be connected to
    */
-  newNode({ label = '', size = 10, color = '', edges = new Set, autoSize = false } = {}) {
+  newNode({
+    label = '',
+    size = 10,
+    color = '',
+    edges = new Set,
+    autoSize = false,
+    onclick,
+  } = {}) {
     const node = {
       label,
       size,
@@ -153,10 +162,11 @@ class Graph {
       nextY: 0,
       lastX: 0,
       lastY: 0,
-    }
+      onclick,
+    };
 
     edges.forEach(id => {
-      this.#edges.add([node.id, id])
+      this.#edges.add([node.id, id]);
     });
 
     if (autoSize) {
@@ -253,8 +263,7 @@ class Graph {
 
     for (const node of this.#nodes) {
       if (node !== this.#hoveredNode && !node.edges.has(this.#hoveredNode?.id)) {
-
-        this.ctx.fillStyle = (node.color || this.nodeColor);
+        this.ctx.fillStyle = node.color || this.nodeColor;
         this.ctx.beginPath();
         this.ctx.ellipse(node.x, node.y, node.size, node.size, 0, 0, 2 * Math.PI);
         this.ctx.fill();
@@ -289,7 +298,6 @@ class Graph {
       this.ctx.strokeRect(0, 0, this.width, this.height);
       this.ctx.stroke();
     }
-
 
     // draw hovered and connected nodes on top of shaded rectangle
     if (this.#hoveredNode !== null) {
@@ -340,7 +348,7 @@ class Graph {
     this.#updatePositions();
 
     if (this.#frameCount < 15) {
-      for (let i = 0; i < Math.round(- 200 / (1 + Math.exp(- this.#frameCount / 2)) + 200); i++) {
+      for (let i = 0; i < Math.round(-200 / (1 + Math.exp(-this.#frameCount / 2)) + 200); i++) {
         this.#updatePositions();
       }
       this.#frameCount++;
@@ -399,7 +407,7 @@ class Graph {
 
   #calcInternodeForce(node1, node2) {
     const distance = Math.max(this.dist(node1, node2) - node1.size - node2.size, 0.0001);
-    const force = Math.min(this.repelForce * 2000 / (distance ** 2), 30);
+    const force = Math.min((this.repelForce * 2000) / distance ** 2, 30);
     const [x, y] = this.#forceDirection(node1, node2, force);
 
     node1.nextX -= x;
@@ -411,7 +419,7 @@ class Graph {
 
   #calcCenterForce(node) {
     const distance = this.dist(this.centerNode, node);
-    const force = this.centerForce * 0.00001 * (distance ** 2);
+    const force = this.centerForce * 0.00001 * distance ** 2;
     const [x, y] = this.#forceDirection(this.centerNode, node, force);
 
     node.nextX -= x;
@@ -450,8 +458,10 @@ class Graph {
    */
   #actualCenter(type) {
     return type === 'x'
-      ? (this.centerNode.x - this.transform.e) / this.scale + (this.canvas.height - this.height) / this.scale / 2
-      : (this.centerNode.y - this.transform.f) / this.scale + (this.canvas.width - this.width) / this.scale / 2;
+      ? (this.centerNode.x - this.transform.e) / this.scale +
+          (this.canvas.height - this.height) / this.scale / 2
+      : (this.centerNode.y - this.transform.f) / this.scale +
+          (this.canvas.width - this.width) / this.scale / 2;
   }
 
   /**
@@ -468,8 +478,8 @@ class Graph {
     const run = node2.x - node1.x;
 
     // Use Pythagorean theorem to calculate the x and y forces
-    const xForce = Math.sqrt((force ** 2) / (1 + (rise / run) ** 2)) * Math.sign(run);
-    const yForce = Math.sqrt((force ** 2) / (1 + (run / rise) ** 2)) * Math.sign(rise);
+    const xForce = Math.sqrt(force ** 2 / (1 + (rise / run) ** 2)) * Math.sign(run);
+    const yForce = Math.sqrt(force ** 2 / (1 + (run / rise) ** 2)) * Math.sign(rise);
 
     return [xForce, yForce];
   }
@@ -485,7 +495,7 @@ class Graph {
   }
 
   autoSize(node) {
-    return 100 / (1 + Math.exp(- node.edges.size / 100)) - 40;
+    return 100 / (1 + Math.exp(-node.edges.size / 100)) - 40;
   }
 
   #updateSizes(node1, node2) {
@@ -495,6 +505,8 @@ class Graph {
 
   #mouseMove(e) {
     e.preventDefault();
+    this.#startDrag && (this.#dragging = true);
+    this.#startDrag = false;
 
     const [x, y] = this.#canvasCoords(e.x, e.y);
     this.#mouseNode = { x, y };
@@ -535,7 +547,7 @@ class Graph {
     }
 
     this.#draggedNode = this.#hoveredNode;
-    this.#dragging = true;
+    this.#startDrag = true;
     if (!this.#draggedNode) {
       this.canvas.style.cursor = 'grabbing';
     }
@@ -547,7 +559,6 @@ class Graph {
       this.canvas.style.cursor = 'default';
     }
     this.#draggedNode = null;
-    this.#dragging = false;
   }
 
   #mouseLeave() {
@@ -594,24 +605,33 @@ class Graph {
     this.#pageScale = this.width / this.canvas.width;
   }
 
+  #handleClick(e) {
+    if (e.button === 0 && this.#hoveredNode && !this.#dragging) {
+      try {
+        this.#hoveredNode.onclick();
+      } catch {
+        // do nothing
+      }
+    }
+    this.#dragging = false;
+    this.#startDrag = false;
+  }
+
   handleEvent(e) {
     if (e.type === 'pointermove') {
       this.#mouseMove(e);
-    }
-    else if (e.type === 'pointerdown') {
+    } else if (e.type === 'pointerdown') {
       this.#mouseDown(e);
-    }
-    else if (e.type === 'pointerup') {
+    } else if (e.type === 'pointerup') {
       this.#mouseUp();
-    }
-    else if (e.type === 'pointerleave') {
+    } else if (e.type === 'pointerleave') {
       this.#mouseLeave();
-    }
-    else if (e.type === 'wheel') {
+    } else if (e.type === 'wheel') {
       this.#zoom(e);
-    }
-    else if (e.type === 'resize') {
+    } else if (e.type === 'resize') {
       this.#resize();
+    } else if (e.type === 'click') {
+      this.#handleClick(e);
     }
   }
 
@@ -626,6 +646,8 @@ class Graph {
 
     this.canvas.addEventListener('wheel', this);
 
+    this.canvas.addEventListener('click', this);
+
     addEventListener('resize', this);
   }
 
@@ -639,6 +661,8 @@ class Graph {
     this.canvas.removeEventListener('mouseleave', this);
 
     this.canvas.removeEventListener('wheel', this);
+
+    this.canvas.removeEventListener('click', this);
 
     removeEventListener('resize', this);
   }
@@ -655,9 +679,16 @@ class Graph {
 
   /** Set the scale and center the graph in the canvas */
   #setInitialTransform() {
-    this.ctx.setTransform(this.scale, 0, 0, this.scale, this.canvas.width / 2, this.canvas.height / 2);
+    this.ctx.setTransform(
+      this.scale,
+      0,
+      0,
+      this.scale,
+      this.canvas.width / 2,
+      this.canvas.height / 2
+    );
 
-    this.ctx.translate(- this.width / 2, - this.height / 2)
+    this.ctx.translate(-this.width / 2, -this.height / 2);
   }
 
   /**
@@ -678,8 +709,8 @@ class Graph {
   #canvasCoords(x, y) {
     const b = this.canvas.getBoundingClientRect();
     return [
-      (((x - b.x) / this.#pageScale) - this.transform.e) / this.scale,
-      (((y - b.y) / this.#pageScale) - this.transform.f) / this.scale,
+      ((x - b.x) / this.#pageScale - this.transform.e) / this.scale,
+      ((y - b.y) / this.#pageScale - this.transform.f) / this.scale,
     ];
   }
 
