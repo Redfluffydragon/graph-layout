@@ -4,12 +4,12 @@ This is a force-directed layout library that is quite unfinished right now.
 
 ## How to use
 
-### Create a new graph
 The library exports a single ES6 Graph class.
 
 ```js
 import Graph from 'graph-layout';
 ```
+### Creating a new graph
 
 To create a new graph, all that's required is a canvas element or the ID for a canvas element.
 
@@ -22,7 +22,7 @@ const canvas = document.querySelector('canvas');
 const graph = new Graph(canvas);
 ```
 
-### Options
+### Graph Options
 There are a variety of options you can set when creating a new graph.
 
 TODO tabulate options
@@ -43,13 +43,19 @@ const node2 = graph.newNode({
   color: 'red',
 })
 ```
+TODO tabulate node options
 
+### Adding Edges
 To add edges, use the newEdge method
 
 ```js
 graph.newEdge(node1, node2);
 ```
-currently, if you want to add edges, you either have to keep a reference to the nodes you want to add edges between, or be able to find them by label.
+currently, if you want to add edges, you either have to keep a reference to the nodes you want to add edges between, or be able to find them by label or something.
+
+```js
+graph.newEdge(graph.nodes.find(node => node.label === 'Node 2', node1));
+```
 
 ### Running the graph
 
