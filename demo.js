@@ -211,7 +211,8 @@ const graph = new Graph('demo', {
   background: '#191919',
 });
 
-graph.cursorDot = true;
+// Set this to true to display a dot where it thinks the cursor is - for debugging
+// graph.cursorDot = true;
 
 const nodes = [];
 for (let i = 0; i < 200; i++) {
